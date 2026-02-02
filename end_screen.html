@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Analyse abgeschlossen</title>
+  <style>
+    :root {
+      --accent: #c8102e;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: #fff;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+    .container {
+      text-align: center;
+      max-width: 520px;
+      padding: 40px 24px;
+    }
+    .logo-img {
+      width: 120px; border-radius: 16px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    }
+    h1 {
+      font-size: 26px; color: var(--accent);
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 18px; color: #1a1a1a;
+      margin-bottom: 6px; font-weight: 600;
+    }
+    .sub {
+      color: #666; font-size: 14px; line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .credits {
+      padding: 20px; border: 1px solid #ddd;
+      border-radius: 12px; background: #f9f9f9;
+      margin-bottom: 28px;
+    }
+    .credits .name { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+    .credits .role { font-size: 13px; color: #666; margin-bottom: 6px; }
+    .divider { height: 1px; background: #ddd; margin: 12px 0; }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px; border-radius: 8px;
+      border: none; background: var(--accent); color: #fff;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      font-family: var(--font); transition: background .2s;
+    }
+    .btn:hover { background: #9b0c23; }
+    .footer {
+      margin-top: 28px;
+      font-size: 12px; color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="logo-kreis-herford.jpg" class="logo-img" alt="Kreis Herford"/>
+    <h1>Agiles Projekt- und Prozessmanagement</h1>
+    <h2>Kreisverwaltung Herford</h2>
+    <p class="sub">Die Problemanalyse wurde erfolgreich durchgeführt. Vielen Dank für Ihre Teilnahme am Prototypen.</p>
+
+    <div class="credits">
+      <div class="name">Baran</div>
+      <div class="role">Projektteam</div>
+      <div class="divider"></div>
+      <div class="name">Adriana</div>
+      <div class="role">Projektteam</div>
+      <div class="divider"></div>
+      <div class="name">Ferhat</div>
+      <div class="role">Projektteam</div>
+    </div>
+
+    <button class="btn" onclick="restart()">Neue Problemanalyse starten</button>
+
+    <div class="footer">Prototype v1.0 – Agiles Projekt- und Prozessmanagement</div>
+  </div>
+
+  <script>
+    function restart() {
+      localStorage.removeItem('problemlandkarte_current');
+      localStorage.removeItem('problemlandkarte_person');
+      window.location.href = 'dashboard_problemlandkarte.html';
+    }
+  </script>
+</body>
+</html>

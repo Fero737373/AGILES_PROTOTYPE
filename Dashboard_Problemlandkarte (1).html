@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Digitalisierungskarte – Scoring Dashboard (Mockup)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#101a2e;
+      --panel2:#0e1730;
+      --text:#e7ecff;
+      --muted:#aab3d6;
+      --line:#24304d;
+      --accent:#7c5cff;
+      --accent2:#2ee59d;
+      --warn:#ffcc66;
+      --danger:#ff5c7a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(124,92,255,.25), transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(46,229,157,.18), transparent 55%),
+                  linear-gradient(180deg, #070b14 0%, var(--bg) 60%, #060a12 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+    a{color:inherit}
+    .wrap{max-width:1120px;margin:0 auto;padding:24px 16px 56px}
+    .topbar{
+      position:sticky; top:0; z-index:5;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(11,18,32,.75), rgba(11,18,32,.25));
+      border-bottom: 1px solid rgba(36,48,77,.5);
+    }
+    .topbar-inner{
+      max-width:1120px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px;
+    }
+    .random-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.6);
+      color: var(--text);
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    }
+    .random-dot{
+      width:10px;height:10px;border-radius:50%;
+      background: conic-gradient(from 180deg, var(--accent), var(--accent2), var(--warn), var(--accent));
+      box-shadow: 0 0 0 3px rgba(124,92,255,.15);
+    }
+    .title{
+      display:flex;flex-direction:column;line-height:1.1;gap:2px;
+    }
+    .title h1{font-size:14px;margin:0;color:var(--text);font-weight:800;letter-spacing:.2px}
+    .title p{margin:0;font-size:12px;color:var(--muted)}
+    .pill{
+      margin-left:auto;
+      font-size:12px;color:var(--muted);
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(36,48,77,.7);
+      background: rgba(16,26,46,.35);
+    }
+
+    .grid{
+      display:grid;
+      gap:14px;
+    }
+    @media (min-width: 980px){
+      .grid.cols-2{grid-template-columns: 1.25fr .75fr;}
+      .grid.cols-3{grid-template-columns: 1fr 1fr 1fr;}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(16,26,46,.92), rgba(14,23,48,.75));
+      border:1px solid rgba(36,48,77,.75);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+    }
+    .card h2{
+      margin:0 0 8px 0;
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0 0 14px 0;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.4;
+    }
+    .divider{height:1px;background:rgba(36,48,77,.7);margin:14px 0}
+
+    .btn{
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.55);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .btn.primary{
+      background: linear-gradient(90deg, rgba(124,92,255,.85), rgba(46,229,157,.75));
+      border-color: rgba(124,92,255,.35);
+    }
+    .btn.ghost{
+      background: transparent;
+    }
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+    .q{
+      display:grid;
+      gap:8px;
+      padding:12px;
+      border-radius: var(--radius-sm);
+      border:1px solid rgba(36,48,77,.65);
+      background: rgba(8,12,22,.25);
+    }
+    .q label{font-weight:800;font-size:13px}
+    .q small{color:var(--muted);font-size:12px;line-height:1.35}
+    select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.65);
+      color: var(--text);
+      outline:none;
+    }
+    .hint{
+      font-size:12px;color:var(--muted);
+      margin-top:10px;
+    }
+    .error{
+      border-color: rgba(255,92,122,.75)!important;
+      box-shadow: 0 0 0 3px rgba(255,92,122,.15);
+    }
+
+    /* Dashboard bits */
+    .score-wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .ring{
+      width:120px;height:120px;border-radius:50%;
+      background: conic-gradient(var(--accent2) var(--p), rgba(36,48,77,.6) 0);
+      display:grid;place-items:center;
+      box-shadow: 0 10px 25px rgba(0,0,0,.3);
+      border: 1px solid rgba(36,48,77,.8);
+      position:relative;
+    }
+    .ring:before{
+      content:"";
+      width:86px;height:86px;border-radius:50%;
+      background: linear-gradient(180deg, rgba(16,26,46,1), rgba(14,23,48,1));
+      border:1px solid rgba(36,48,77,.75);
+      position:absolute;
+      inset:auto;
+    }
+    .ring .ring-text{
+      position:relative;
+      text-align:center;
+      line-height:1.0;
+    }
+    .ring .ring-text b{font-size:28px}
+    .ring .ring-text span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+
+    .bigscore b{font-size:34px}
+    .bigscore div{color:var(--muted);font-size:12.5px;margin-top:4px}
+
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(36,48,77,.8);
+      background: rgba(8,12,22,.25);
+      font-size:12px;color:var(--muted);
+      width:max-content;
+    }
+    .sev-dot{width:9px;height:9px;border-radius:50%}
+    .sev-low{background:var(--accent2)}
+    .sev-mid{background:var(--warn)}
+    .sev-high{background:var(--danger)}
+
+    .kpi{
+      display:grid;gap:8px;
+    }
+    .kpi-row{
+      display:flex;justify-content:space-between;gap:10px;align-items:center;
+      padding:10px 12px;border-radius:12px;
+      border:1px solid rgba(36,48,77,.65);
+      background: rgba(8,12,22,.22);
+      font-size:13px;
+    }
+    .kpi-row span{color:var(--muted);font-weight:700}
+    .kpi-row b{font-weight:900}
+    .bar{
+      height:10px;border-radius:999px;
+      background: rgba(36,48,77,.65);
+      overflow:hidden;
+      border:1px solid rgba(36,48,77,.7);
+    }
+    .bar > i{
+      display:block;height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(124,92,255,.85), rgba(46,229,157,.75));
+    }
+
+    textarea{
+      width:100%;
+      min-height:110px;
+      padding:12px;
+      border-radius: 14px;
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.55);
+      color:var(--text);
+      outline:none;
+      resize:vertical;
+    }
+    .list{
+      display:grid;gap:10px;margin-top:12px;
+    }
+    .item{
+      padding:12px;
+      border-radius: 14px;
+      border:1px solid rgba(36,48,77,.7);
+      background: rgba(8,12,22,.18);
+    }
+    .item-head{
+      display:flex;justify-content:space-between;gap:10px;
+      color:var(--muted);font-size:12px;margin-bottom:6px
+    }
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .hidden{display:none!important}
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <!-- Kleiner Button oben links: RANDOM -->
+      <button id="randomBtn" class="random-btn" type="button" title="Random Scenario / Random Answers">
+        <span class="random-dot"></span>
+        RANDOM
+      </button>
+
+      <div class="title">
+        <h1>Digitalisierungskarte – Scoringprozess</h1>
+        <p>Mockup: Fragebogen → Dashboard (0–100) + kritischster Prozess + Feedback</p>
+      </div>
+
+      <div id="modePill" class="pill">Modus: Fragebogen</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- VIEW 1: Fragebogen -->
+    <section id="surveyView" class="grid" style="gap:16px;">
+      <div class="card">
+        <h2>Fragebogen (Beispiel)</h2>
+        <p class="sub">
+          Bitte alle Punkte bewerten (0 = sehr schlecht / unklar, 5 = sehr gut / stabil).
+          Danach wird ein Dashboard mit Score und kritischstem Prozess erzeugt.
+        </p>
+
+        <div id="questions" class="grid" style="gap:10px;"></div>
+
+        <div class="divider"></div>
+
+        <div class="btn-row">
+          <button id="submitSurvey" class="btn primary" type="button">Auswerten & Dashboard anzeigen</button>
+          <button id="resetSurvey" class="btn" type="button">Zurücksetzen</button>
+        </div>
+
+        <div class="hint">
+          Tipp: Mit <span class="mono">RANDOM</span> werden Antworten automatisch gefüllt (Mockup-Demo).
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Was das Dashboard zeigt</h2>
+        <p class="sub">
+          <b>Score 0/100</b>, den <b>kritischsten Prozess</b> (höchstes Risiko), plus eine Box für
+          <b>Bedenken & Fragen</b>, damit du direkt Feedback geben kannst.
+        </p>
+
+        <div class="kpi">
+          <div class="kpi-row"><span>Score</span><b>0–100</b></div>
+          <div class="kpi-row"><span>Kritischster Prozess</span><b>Auto-Ermittlung</b></div>
+          <div class="kpi-row"><span>Feedback</span><b>Kommentare speichern</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: Dashboard -->
+    <section id="dashboardView" class="hidden" style="margin-top:6px;">
+      <div class="grid cols-2">
+        <!-- Left column -->
+        <div class="grid" style="gap:14px;">
+          <div class="card">
+            <h2>Dashboard</h2>
+            <p class="sub">Ergebnis nach Abschluss des Fragebogens.</p>
+
+            <div class="score-wrap">
+              <div id="ring" class="ring" style="--p:0deg">
+                <div class="ring-text">
+                  <b id="scoreNum">0</b>
+                  <span>/ 100</span>
+                </div>
+              </div>
+
+              <div class="bigscore">
+                <b id="scoreTitle">0 / 100</b>
+                <div id="scoreText">Noch keine Auswertung.</div>
+                <div class="badge" id="scoreBadge">
+                  <span class="sev-dot sev-high"></span>
+                  <span id="scoreBadgeText">Status: kritisch</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="grid cols-3">
+              <div class="card" style="padding:14px;">
+                <h2 style="margin-bottom:6px;">KPI: Reifegrad</h2>
+                <p class="sub" style="margin-bottom:10px;">Aggregierter Reifegrad aus allen Bereichen.</p>
+                <div class="bar"><i id="barMaturity"></i></div>
+              </div>
+
+              <div class="card" style="padding:14px;">
+                <h2 style="margin-bottom:6px;">KPI: Risiko</h2>
+                <p class="sub" style="margin-bottom:10px;">Je höher, desto dringender Handlungsbedarf.</p>
+                <div class="bar"><i id="barRisk"></i></div>
+              </div>
+
+              <div class="card" style="padding:14px;">
+                <h2 style="margin-bottom:6px;">KPI: Quick Wins</h2>
+                <p class="sub" style="margin-bottom:10px;">Potenzial für schnelle Verbesserungen.</p>
+                <div class="bar"><i id="barQuickWins"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Kritischster Prozess</h2>
+            <p class="sub">Der Bereich mit dem höchsten Risiko (aus deinen Antworten abgeleitet).</p>
+
+            <div class="q" style="gap:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+                <div>
+                  <div style="font-weight:950;font-size:16px" id="critName">—</div>
+                  <div style="color:var(--muted);font-size:12.5px;margin-top:4px" id="critReason">—</div>
+                </div>
+                <div class="badge" id="critBadge">
+                  <span id="critDot" class="sev-dot sev-high"></span>
+                  <span id="critSev">kritisch</span>
+                </div>
+              </div>
+
+              <div>
+                <small style="color:var(--muted);display:block;margin-bottom:6px;">Risikowert</small>
+                <div class="bar"><i id="barCrit"></i></div>
+              </div>
+
+              <div class="kpi">
+                <div class="kpi-row"><span>Symptom</span><b id="critSymptom">—</b></div>
+                <div class="kpi-row"><span>Empfehlung</span><b id="critAction">—</b></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="btn-row">
+              <button id="backToSurvey" class="btn" type="button">Zurück zum Fragebogen</button>
+              <button id="exportJson" class="btn ghost" type="button">Export (JSON)</button>
+            </div>
+            <div class="hint">Mockup: Export zeigt die aktuelle Auswertung als JSON im Browser-Dialog.</div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="grid" style="gap:14px;">
+          <div class="card">
+            <h2>Bedenken & Fragen</h2>
+            <p class="sub">
+              Hier kannst du Anmerkungen hinterlassen (z. B. offene Fragen, Risiken, „das passt bei uns nicht“, etc.).
+              Einträge werden lokal im Browser gespeichert (Mockup).
+            </p>
+
+            <textarea id="feedbackText" placeholder="Schreibe deine Bedenken / Fragen hier…"></textarea>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
+              <div class="badge">
+                <span class="sev-dot sev-mid"></span>
+                <span id="feedbackMeta">Zuletzt: —</span>
+              </div>
+              <div class="btn-row">
+                <button id="saveFeedback" class="btn primary" type="button">Speichern</button>
+                <button id="clearFeedback" class="btn" type="button">Liste leeren</button>
+              </div>
+            </div>
+
+            <div id="feedbackList" class="list"></div>
+          </div>
+
+          <div class="card">
+            <h2>Zusammenfassung</h2>
+            <p class="sub">Kurzform, damit du es in eine Folie übernehmen kannst.</p>
+            <div class="kpi">
+              <div class="kpi-row"><span>Score</span><b id="sumScore">—</b></div>
+              <div class="kpi-row"><span>Kritischster Prozess</span><b id="sumCrit">—</b></div>
+              <div class="kpi-row"><span>Nächster Schritt</span><b id="sumNext">—</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ---- Mock-Fragen + Zuordnung zu "Prozessen" (für kritischsten Prozess) ----
+    const QUESTIONS = [
+      {
+        id: "q_media",
+        label: "Medienbruch / Dokumentenfluss",
+        desc: "Wie sauber läuft der Prozess ohne Papier/Copy-Paste zwischen Systemen?",
+        process: "Medienbruch",
+        symptom: "Viele manuelle Übertragungen",
+        action: "Input/Output standardisieren + digitale Formulare"
+      },
+      {
+        id: "q_wait",
+        label: "Wartezeiten / Liegezeiten",
+        desc: "Wie häufig entstehen Wartezeiten durch Freigaben/Abhängigkeiten?",
+        process: "Wartezeit",
+        symptom: "Freigaben blockieren Workflows",
+        action: "Freigabe-Regeln vereinfachen + SLA/Status-Tracking"
+      },
+      {
+        id: "q_rework",
+        label: "Nacharbeit / Fehlerquote",
+        desc: "Wie oft müssen Vorgänge korrigiert oder erneut bearbeitet werden?",
+        process: "Nacharbeit",
+        symptom: "Viele Rückfragen und Korrekturen",
+        action: "Pflichtfelder/Validierungen + klare Standards"
+      },
+      {
+        id: "q_data",
+        label: "Datenqualität",
+        desc: "Wie verlässlich sind Stammdaten, Schlüssel, Felder, Dublettenfreiheit?",
+        process: "Datenqualität",
+        symptom: "Dubletten/unklare Felder",
+        action: "Daten-Governance + Qualitätsregeln"
+      },
+      {
+        id: "q_std",
+        label: "Standardisierung",
+        desc: "Sind Rollen, Zuständigkeiten und Prozessschritte eindeutig definiert?",
+        process: "Standardisierung",
+        symptom: "Unklare Verantwortlichkeiten",
+        action: "RACI + Prozess-Definition-of-Done"
+      },
+      {
+        id: "q_api",
+        label: "Schnittstellen / API-Fähigkeit",
+        desc: "Wie gut können Systeme Daten austauschen (APIs, Export/Import, Automationen)?",
+        process: "Schnittstellen",
+        symptom: "Insellösungen / kein Datenaustausch",
+        action: "API-Strategie + Integrations-Roadmap"
+      }
+    ];
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const surveyView = $("#surveyView");
+    const dashboardView = $("#dashboardView");
+    const modePill = $("#modePill");
+    const questionsWrap = $("#questions");
+
+    function buildSurvey(){
+      questionsWrap.innerHTML = "";
+      QUESTIONS.forEach(q => {
+        const el = document.createElement("div");
+        el.className = "q";
+        el.innerHTML = `
+          <label for="${q.id}">${q.label}</label>
+          <small>${q.desc}</small>
+          <select id="${q.id}">
+            <option value="" selected disabled>Bitte wählen…</option>
+            <option value="0">0 – sehr schlecht / nicht vorhanden</option>
+            <option value="1">1 – schwach</option>
+            <option value="2">2 – ausbaufähig</option>
+            <option value="3">3 – okay</option>
+            <option value="4">4 – gut</option>
+            <option value="5">5 – sehr gut / stabil</option>
+          </select>
+        `;
+        questionsWrap.appendChild(el);
+      });
+    }
+
+    function getAnswers(){
+      let ok = true;
+      const answers = {};
+      QUESTIONS.forEach(q => {
+        const sel = $("#" + q.id);
+        sel.classList.remove("error");
+        const v = sel.value;
+        if (v === "") { ok = false; sel.classList.add("error"); }
+        answers[q.id] = v === "" ? null : Number(v);
+      });
+      return { ok, answers };
+    }
+
+    // Score: 0–100 (Durchschnitt * 20)
+    // Risiko je Prozess: (5 - Antwort) * 20  => 0–100, größer = kritischer
+    function evaluate(answers){
+      const vals = QUESTIONS.map(q => answers[q.id]);
+      const avg = vals.reduce((a,b)=>a+b,0) / vals.length;            // 0–5
+      const score = Math.round(avg * 20);                              // 0–100
+
+      const riskByProcess = {};
+      QUESTIONS.forEach(q => {
+        const risk = (5 - answers[q.id]) * 20; // 0–100
+        if (!riskByProcess[q.process]) riskByProcess[q.process] = { risk: 0, meta: q };
+        // hier einfach Maximum pro Prozess (Mockup)
+        riskByProcess[q.process].risk = Math.max(riskByProcess[q.process].risk, risk);
+      });
+
+      let worst = Object.values(riskByProcess).sort((a,b)=>b.risk - a.risk)[0];
+
+      // QuickWins (Mock): hoch, wenn score mittel + worst hoch
+      const quickWins = clamp(Math.round((100 - score) * 0.45 + worst.risk * 0.25), 0, 100);
+      const maturity = score;
+      const overallRisk = clamp(Math.round((100 - score) * 0.6 + worst.risk * 0.25), 0, 100);
+
+      return { score, worst, maturity, overallRisk, quickWins };
+    }
+
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+
+    function scoreLabel(score){
+      if (score >= 80) return { text: "stabil", dotClass: "sev-low" };
+      if (score >= 55) return { text: "beobachten", dotClass: "sev-mid" };
+      return { text: "kritisch", dotClass: "sev-high" };
+    }
+
+    function sevLabel(risk){
+      if (risk <= 25) return { text: "niedrig", dotClass: "sev-low" };
+      if (risk <= 60) return { text: "mittel", dotClass: "sev-mid" };
+      return { text: "hoch", dotClass: "sev-high" };
+    }
+
+    // ---- Dashboard Rendering ----
+    let currentResult = null;
+
+    function renderDashboard(result){
+      currentResult = result;
+
+      // Score ring
+      $("#scoreNum").textContent = result.score;
+      $("#scoreTitle").textContent = `${result.score} / 100`;
+      $("#ring").style.setProperty("--p", `${Math.round(result.score * 3.6)}deg`);
+
+      const s = scoreLabel(result.score);
+      $("#scoreText").textContent =
+        result.score >= 80 ? "Gute Basis. Fokus auf Feinschliff & Skalierung." :
+        result.score >= 55 ? "Solide, aber es gibt klare Hebel für Verbesserungen." :
+        "Hoher Handlungsbedarf. Erst Stabilität, dann Automatisierung.";
+
+      const badge = $("#scoreBadge");
+      badge.querySelector(".sev-dot").className = `sev-dot ${s.dotClass}`;
+      $("#scoreBadgeText").textContent = `Status: ${s.text}`;
+
+      // KPI Bars
+      $("#barMaturity").style.width = `${result.maturity}%`;
+      $("#barRisk").style.width = `${result.overallRisk}%`;
+      $("#barQuickWins").style.width = `${result.quickWins}%`;
+
+      // Critical Process
+      const crit = result.worst;
+      const sev = sevLabel(crit.risk);
+
+      $("#critName").textContent = crit.meta.process;
+      $("#critReason").textContent =
+        `Risikowert ${crit.risk}/100 (abgeleitet aus: „${crit.meta.label}“)`;
+      $("#critDot").className = `sev-dot ${sev.dotClass}`;
+      $("#critSev").textContent = sev.text;
+      $("#barCrit").style.width = `${crit.risk}%`;
+      $("#critSymptom").textContent = crit.meta.symptom;
+      $("#critAction").textContent = crit.meta.action;
+
+      // Summary
+      $("#sumScore").textContent = `${result.score} / 100`;
+      $("#sumCrit").textContent = crit.meta.process;
+      $("#sumNext").textContent =
+        crit.risk > 60 ? "Workshops + Zielprozess definieren + Quick-Win umsetzen" :
+        crit.risk > 25 ? "Standards schärfen + Messpunkte (KPIs) einführen" :
+        "Skalieren + Automatisieren + kontinuierlich messen";
+
+      // Mode pill
+      modePill.textContent = "Modus: Dashboard";
+    }
+
+    function showDashboard(){
+      surveyView.classList.add("hidden");
+      dashboardView.classList.remove("hidden");
+      modePill.textContent = "Modus: Dashboard";
+      loadFeedback();
+    }
+
+    function showSurvey(){
+      dashboardView.classList.add("hidden");
+      surveyView.classList.remove("hidden");
+      modePill.textContent = "Modus: Fragebogen";
+    }
+
+    // ---- Feedback (lokal) ----
+    const FEEDBACK_KEY = "digikarte_feedback_mock_v1";
+
+    function loadFeedback(){
+      const raw = localStorage.getItem(FEEDBACK_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      renderFeedbackList(arr);
+    }
+
+    function saveFeedbackEntry(text){
+      const raw = localStorage.getItem(FEEDBACK_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      arr.unshift({
+        ts: new Date().toISOString(),
+        score: currentResult?.score ?? null,
+        critical: currentResult?.worst?.meta?.process ?? null,
+        text
+      });
+      localStorage.setItem(FEEDBACK_KEY, JSON.stringify(arr));
+      renderFeedbackList(arr);
+      $("#feedbackMeta").textContent = "Zuletzt: gerade eben";
+    }
+
+    function clearFeedback(){
+      localStorage.removeItem(FEEDBACK_KEY);
+      renderFeedbackList([]);
+      $("#feedbackMeta").textContent = "Zuletzt: —";
+    }
+
+    function renderFeedbackList(arr){
+      const list = $("#feedbackList");
+      list.innerHTML = "";
+      if (!arr.length){
+        const empty = document.createElement("div");
+        empty.className = "item";
+        empty.innerHTML = `<div class="item-head"><span>Keine Einträge</span><span class="mono">—</span></div>
+                           <div style="color:var(--muted);font-size:13px;">Deine Bedenken/Fragen erscheinen hier.</div>`;
+        list.appendChild(empty);
+        return;
+      }
+      arr.slice(0,8).forEach(e => {
+        const d = new Date(e.ts);
+        const item = document.createElement("div");
+        item.className = "item";
+        item.innerHTML = `
+          <div class="item-head">
+            <span>Score: <b>${e.score ?? "—"}</b> · Kritisch: <b>${e.critical ?? "—"}</b></span>
+            <span class="mono">${d.toLocaleString("de-DE")}</span>
+          </div>
+          <div style="white-space:pre-wrap;line-height:1.45">${escapeHtml(e.text)}</div>
+        `;
+        list.appendChild(item);
+      });
+
+      const last = arr[0] ? new Date(arr[0].ts).toLocaleString("de-DE") : "—";
+      $("#feedbackMeta").textContent = `Zuletzt: ${last}`;
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    // ---- Random helpers ----
+    function fillRandomAnswers(){
+      QUESTIONS.forEach(q => {
+        const sel = $("#" + q.id);
+        // leicht realistisch: eher 2–4, aber mit Ausreißern
+        const r = Math.random();
+        let v;
+        if (r < 0.12) v = 0;
+        else if (r < 0.22) v = 1;
+        else if (r < 0.45) v = 2;
+        else if (r < 0.75) v = 3;
+        else if (r < 0.92) v = 4;
+        else v = 5;
+        sel.value = String(v);
+        sel.classList.remove("error");
+      });
+    }
+
+    function randomizeDashboardScenario(){
+      // Wenn man gerade im Survey ist: fülle Antworten + auswerten
+      if (!surveyView.classList.contains("hidden")){
+        fillRandomAnswers();
+        const { ok, answers } = getAnswers();
+        if (ok){
+          const res = evaluate(answers);
+          renderDashboard(res);
+          showDashboard();
+        }
+        return;
+      }
+      // Wenn man im Dashboard ist: erzeuge komplett random Werte (Mockup)
+      const answers = {};
+      QUESTIONS.forEach(q => answers[q.id] = Math.floor(Math.random() * 6));
+      const res = evaluate(answers);
+      renderDashboard(res);
+    }
+
+    // ---- Events ----
+    buildSurvey();
+
+    $("#submitSurvey").addEventListener("click", () => {
+      const { ok, answers } = getAnswers();
+      if (!ok) return;
+
+      const res = evaluate(answers);
+      renderDashboard(res);
+      showDashboard();
+    });
+
+    $("#resetSurvey").addEventListener("click", () => {
+      buildSurvey();
+    });
+
+    $("#backToSurvey").addEventListener("click", () => {
+      showSurvey();
+    });
+
+    $("#randomBtn").addEventListener("click", () => {
+      randomizeDashboardScenario();
+    });
+
+    $("#saveFeedback").addEventListener("click", () => {
+      const t = $("#feedbackText").value.trim();
+      if (!t) return;
+      saveFeedbackEntry(t);
+      $("#feedbackText").value = "";
+    });
+
+    $("#clearFeedback").addEventListener("click", () => {
+      clearFeedback();
+    });
+
+    $("#exportJson").addEventListener("click", () => {
+      const payload = {
+        generatedAt: new Date().toISOString(),
+        score: currentResult?.score ?? null,
+        criticalProcess: currentResult?.worst?.meta?.process ?? null,
+        risk: currentResult?.worst?.risk ?? null,
+        kpis: currentResult ? {
+          maturity: currentResult.maturity,
+          overallRisk: currentResult.overallRisk,
+          quickWins: currentResult.quickWins
+        } : null
+      };
+      alert(JSON.stringify(payload, null, 2));
+    });
+  </script>
+</body>
+</html>

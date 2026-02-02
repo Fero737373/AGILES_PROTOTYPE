@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Problemlandkarte – Fragebogen</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #fff8f0;
+      --panel2: #fef3e2;
+      --text: #1a1a1a;
+      --muted: #666;
+      --line: #e5d5c0;
+      --accent: #c8102e;
+      --accent-light: #e8354d;
+      --accent-dark: #9b0c23;
+      --yellow: #e5a100;
+      --yellow-light: #ffc933;
+      --yellow-dark: #b38000;
+      --success: #16a34a;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .topbar {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    .topbar h1 { font-size: 16px; font-weight: 700; }
+    .topbar p { font-size: 12px; opacity: .85; }
+    .topbar .logo-img {
+      width: 40px; height: 40px; border-radius: 50%;
+      object-fit: cover; border: 2px solid #fff;
+    }
+    .topbar .spacer { flex: 1; }
+    .step-indicator {
+      display: flex; gap: 4px; align-items: center;
+      background: rgba(255,255,255,.15);
+      padding: 6px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+    }
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,.35);
+    }
+    .step-dot.active { background: var(--yellow-light); }
+    .step-dot.done { background: var(--success); }
+
+    .wrap { max-width: 800px; margin: 0 auto; padding: 32px 20px 80px; }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card h2 { font-size: 18px; margin-bottom: 6px; color: var(--accent); }
+    .card .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block; font-weight: 700; font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .form-group .hint { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    select, input[type="text"], textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-family: var(--font);
+      background: #fff; color: var(--text);
+      outline: none; transition: border-color .2s;
+    }
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px rgba(229,161,0,.15);
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .error-field { border-color: var(--danger) !important; }
+
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .checkbox-group label {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--panel);
+      cursor: pointer; font-size: 13px; font-weight: 500;
+      transition: all .2s;
+    }
+    .checkbox-group label:hover { border-color: var(--yellow); }
+    .checkbox-group input:checked + span { color: var(--accent); font-weight: 700; }
+    .checkbox-group label:has(input:checked) {
+      border-color: var(--yellow); background: var(--panel2);
+    }
+    .checkbox-group input { display: none; }
+
+    .rating-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .rating-btn {
+      width: 48px; height: 48px;
+      border: 2px solid var(--line); border-radius: var(--radius-sm);
+      background: #fff; cursor: pointer;
+      font-size: 16px; font-weight: 800;
+      color: var(--muted);
+      display: grid; place-items: center;
+      transition: all .2s;
+    }
+    .rating-btn:hover { border-color: var(--yellow); color: var(--yellow-dark); }
+    .rating-btn.selected {
+      border-color: var(--yellow); background: var(--yellow);
+      color: #fff;
+    }
+    .rating-label {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--muted); margin-top: 4px;
+    }
+
+    .comment-toggle {
+      font-size: 12px; color: var(--yellow-dark); cursor: pointer;
+      margin-top: 8px; font-weight: 600;
+    }
+    .comment-toggle:hover { text-decoration: underline; }
+    .comment-box { display: none; margin-top: 8px; }
+    .comment-box.show { display: block; }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .btn {
+      padding: 12px 24px; border-radius: var(--radius-sm);
+      border: 1px solid var(--line); background: #fff;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: var(--font); transition: all .2s;
+    }
+    .btn:hover { background: var(--panel); }
+    .btn.primary {
+      background: var(--accent); color: #fff;
+      border-color: var(--accent);
+    }
+    .btn.primary:hover { background: var(--accent-dark); }
+    .btn.yellow {
+      background: var(--yellow); color: #fff;
+      border-color: var(--yellow);
+    }
+    .btn.yellow:hover { background: var(--yellow-dark); }
+
+    .drilldown {
+      margin-top: 12px; padding: 14px;
+      border-left: 3px solid var(--yellow);
+      background: rgba(229,161,0,.04);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .drilldown .form-group { margin-bottom: 12px; }
+
+    .hidden { display: none !important; }
+
+    /* Startscreen */
+    .startscreen {
+      min-height: 100vh; display: grid; place-items: center;
+      background: linear-gradient(180deg, #fff 0%, var(--panel2) 100%);
+    }
+    .start-container { text-align: center; max-width: 560px; padding: 40px 24px; }
+    .start-container img {
+      max-width: 320px; border-radius: 20px;
+      margin-bottom: 28px; box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    }
+    .start-container h1 { font-size: 28px; color: var(--accent); margin-bottom: 6px; }
+    .start-container h2 { font-size: 18px; color: var(--yellow-dark); margin-bottom: 8px; font-weight: 600; }
+    .start-container .names {
+      font-size: 14px; color: var(--muted); margin-bottom: 28px;
+    }
+    .start-btn {
+      padding: 16px 40px; border-radius: 10px;
+      border: none; background: var(--accent); color: #fff;
+      font-size: 16px; font-weight: 800; cursor: pointer;
+      font-family: var(--font); box-shadow: 0 4px 16px rgba(200,16,46,.3);
+      transition: all .2s;
+    }
+    .start-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+    /* Person form */
+    .person-form .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .person-form .radio-group label {
+      padding: 8px 16px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--panel);
+      cursor: pointer; font-size: 13px; font-weight: 500;
+      transition: all .2s;
+    }
+    .person-form .radio-group label:hover { border-color: var(--yellow); }
+    .person-form .radio-group label:has(input:checked) {
+      border-color: var(--accent); background: rgba(200,16,46,.06);
+      font-weight: 700; color: var(--accent);
+    }
+    .person-form .radio-group input { display: none; }
+
+    /* Summary score ring (CSS donut) */
+    .score-ring {
+      width: 140px; height: 140px; border-radius: 50%;
+      background: conic-gradient(var(--accent) calc(var(--pct) * 3.6deg), #eee 0);
+      display: grid; place-items: center;
+      margin: 0 auto 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+    }
+    .score-ring-inner {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: #fff; display: grid; place-items: center;
+      text-align: center;
+    }
+    .score-ring-inner .num { font-size: 32px; font-weight: 900; color: var(--accent); }
+    .score-ring-inner .label { font-size: 11px; color: var(--muted); }
+
+    /* Summary */
+    .summary-section { margin-bottom: 16px; }
+    .summary-section h3 { font-size: 14px; color: var(--accent); margin-bottom: 8px; }
+    .summary-row {
+      display: flex; justify-content: space-between; padding: 8px 12px;
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      margin-bottom: 6px; font-size: 13px; background: var(--panel);
+    }
+    .summary-row span { color: var(--muted); }
+    .summary-row b { color: var(--text); text-align: right; max-width: 55%; }
+    .summary-comment {
+      font-size: 12px; color: var(--muted); font-style: italic;
+      padding: 4px 12px;
+    }
+
+    /* Popup */
+    .popup-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 100; display: none; place-items: center;
+    }
+    .popup-overlay.show { display: grid; }
+    .popup {
+      background: #fff; border-radius: var(--radius);
+      padding: 28px; max-width: 560px; width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .popup h2 { color: var(--accent); margin-bottom: 8px; }
+    .popup .sub { margin-bottom: 16px; }
+
+    /* Right panel */
+    .panel-overlay {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(480px, 90vw); background: #fff;
+      border-left: 1px solid var(--line);
+      box-shadow: -4px 0 20px rgba(0,0,0,.1);
+      z-index: 90; transform: translateX(100%);
+      transition: transform .3s ease;
+      overflow-y: auto; padding: 24px;
+    }
+    .panel-overlay.show { transform: translateX(0); }
+    .panel-close {
+      position: absolute; top: 12px; right: 12px;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--line); background: #fff;
+      cursor: pointer; font-size: 16px; font-weight: 900;
+      display: grid; place-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== VIEW: STARTSCREEN ====== -->
+  <div id="startScreen" class="startscreen">
+    <div class="start-container">
+      <img src="logo-kreis-herford.jpg" alt="Kreis Herford"/>
+      <h1>Problemfragebogen + Dashboard</h1>
+      <h2>Kreisverwaltung Herford</h2>
+      <div class="names">Baran &middot; Adriana &middot; Ferhat</div>
+      <button class="start-btn" id="btnStart">Starten</button>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: PERSON INPUT ====== -->
+  <div id="personScreen" class="hidden">
+    <div class="topbar">
+      <img src="logo-kreis-herford.jpg" class="logo-img" alt="KH"/>
+      <div>
+        <h1>Problemlandkarte – Kreisverwaltung Herford</h1>
+        <p>Agiles Projekt- und Prozessmanagement</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="card person-form">
+        <h2>Angaben zur Person</h2>
+        <p class="sub">Bitte geben Sie Ihren Namen an und beantworten Sie eine kurze Frage zur Digitalisierung.</p>
+
+        <div class="form-group">
+          <label>Ihr Name</label>
+          <input type="text" id="personName" placeholder="Vor- und Nachname"/>
+        </div>
+
+        <div class="form-group">
+          <label>Wie bewerten Sie den aktuellen Stand der Digitalisierung in Ihrer Abteilung?</label>
+          <div class="radio-group">
+            <label><input type="radio" name="digiRating" value="Sehr gut"/><span>Sehr gut</span></label>
+            <label><input type="radio" name="digiRating" value="Gut"/><span>Gut</span></label>
+            <label><input type="radio" name="digiRating" value="Befriedigend"/><span>Befriedigend</span></label>
+            <label><input type="radio" name="digiRating" value="Ausreichend"/><span>Ausreichend</span></label>
+            <label><input type="radio" name="digiRating" value="Mangelhaft"/><span>Mangelhaft</span></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Was wünschen Sie sich am meisten von der Digitalisierung?</label>
+          <div class="radio-group">
+            <label><input type="radio" name="digiWish" value="Weniger Papier"/><span>Weniger Papier</span></label>
+            <label><input type="radio" name="digiWish" value="Schnellere Prozesse"/><span>Schnellere Prozesse</span></label>
+            <label><input type="radio" name="digiWish" value="Bessere Zusammenarbeit"/><span>Bessere Zusammenarbeit</span></label>
+            <label><input type="radio" name="digiWish" value="Modernere Systeme"/><span>Modernere Systeme</span></label>
+            <label><input type="radio" name="digiWish" value="Mehr Transparenz"/><span>Mehr Transparenz</span></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bemerkung zur Digitalisierung (optional)</label>
+          <textarea id="personNote" placeholder="Was fällt Ihnen zum Thema Digitalisierung ein?"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="btnPersonNext">Weiter zum Fragebogen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: FRAGEBOGEN ====== -->
+  <div id="fragebogenScreen" class="hidden">
+    <div class="topbar">
+      <img src="logo-kreis-herford.jpg" class="logo-img" alt="KH"/>
+      <div>
+        <h1>Problemlandkarte – Kreisverwaltung Herford</h1>
+        <p>Agiles Projekt- und Prozessmanagement</p>
+      </div>
+      <div class="spacer"></div>
+      <div class="step-indicator" id="stepIndicator"></div>
+    </div>
+    <div class="wrap" id="mainContent"></div>
+  </div>
+
+  <!-- Popup for notes -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup">
+      <h2 id="popupTitle">Bemerkungen</h2>
+      <p class="sub" id="popupSub">Hier können Sie zusätzliche Bemerkungen hinterlassen.</p>
+      <textarea id="popupText" placeholder="Ihre Bemerkungen..."></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="popupSave">Speichern</button>
+        <button class="btn" id="popupCancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="panel-overlay" id="panelOverlay">
+    <button class="panel-close" id="panelClose">&times;</button>
+    <h2 style="color:var(--accent);margin-bottom:12px;">Eingaben bearbeiten</h2>
+    <p class="sub" style="color:var(--muted);font-size:13px;">Hier können Sie Ihre bisherigen Eingaben einsehen und Bemerkungen hinzufügen.</p>
+    <div id="panelContent"></div>
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn yellow" id="panelSaveAll">Alle Bemerkungen speichern</button>
+    </div>
+  </div>
+
+  <script>
+    // ========== QUESTIONNAIRE SPEC ==========
+    const FUNNEL = [
+      {
+        id: "dept", type: "select",
+        label: "Welches Amt / welche Abteilung ist betroffen?",
+        options: ["Bürgerbüro / Service","Bauamt","Jugendamt","Ordnungsamt","Sozialamt","Personal / Organisation","Kämmerei / Haushalt","IT / Digitalisierung","Sonstiges"]
+      },
+      {
+        id: "process_type", type: "select",
+        label: "Welche Prozessart ist betroffen?",
+        options: ["Antrag / Leistung","Genehmigung / Bescheid","Beschaffung / Vergabe","Personalvorgang","Haushalt / Rechnung","Aktenführung / Dokumentation","Interne Freigabe / Abstimmung","Bürgerkontakt / Termin / Auskunft"]
+      },
+      {
+        id: "case_channel", type: "multi_select",
+        label: "Über welche Kanäle kommt der Vorgang rein?",
+        options: ["Online-Formular","E-Mail","Post","Telefon","Vor-Ort","Fachverfahren-Import"]
+      },
+      {
+        id: "volume_per_week", type: "select",
+        label: "Wie viele Vorgänge pro Woche betrifft das Problem ca.?",
+        options: ["1–5","6–20","21–50","51–100","über 100"]
+      },
+      {
+        id: "affected_employees", type: "select",
+        label: "Wie viele Mitarbeitende sind betroffen?",
+        options: ["1–2","3–5","6–10","11–20","über 20"]
+      }
+    ];
+
+    const CLUSTERS = [
+      {
+        id: "media_break", label: "Medienbruch / Copy-Paste / Papier",
+        drilldowns: [
+          { id: "media_break_where", when_lte: 3, type: "multi_select", label: "Wo entsteht der Medienbruch konkret?",
+            options: ["Ausdrucke für Unterschrift","Scannen von Papier in System","Doppelte Datenerfassung in mehreren Systemen","Manuelle Übertragung aus E-Mail/Anhängen","Fachverfahren ohne Schnittstelle","Excel/Listen als Zwischenlösung","PDF-Formulare manuell abtippen","Papierakte parallel zur E-Akte"] },
+          { id: "media_break_frequency", when_lte: 3, type: "select", label: "Wie häufig tritt das auf?",
+            options: ["täglich","wöchentlich","monatlich","selten","nur Ausnahmen"] },
+          { id: "media_break_systems", when_lte: 3, type: "multi_select", label: "Welche Systeme sind betroffen?",
+            options: ["Fachverfahren","DMS / E-Akte","Excel / Access","Outlook / E-Mail","SAP","Eigenentwicklung","Sonstiges"] }
+        ]
+      },
+      {
+        id: "waiting_times", label: "Wartezeiten / Liegezeiten / Freigaben",
+        drilldowns: [
+          { id: "waiting_reason", when_lte: 3, type: "multi_select", label: "Was ist die Hauptursache für Wartezeiten?",
+            options: ["Freigabe durch Leitung","Rückfragen an Bürger/Antragsteller","Abhängigkeit zu anderem Amt","Fehlende Unterlagen","IT/System nicht verfügbar","Unklare Zuständigkeit","Vertretungsregelung unklar","Saisonale Spitzen / Überlastung"] },
+          { id: "waiting_bottleneck_role", when_lte: 3, type: "select", label: "Wo ist der Engpass am häufigsten?",
+            options: ["Sachbearbeitung","Teamleitung","Amtsleitung","Querschnitt (z.B. IT)","extern"] },
+          { id: "waiting_duration", when_lte: 3, type: "select", label: "Wie lange dauert der Prozess im Schnitt?",
+            options: ["unter 1 Tag","1–3 Tage","4–10 Tage","11–30 Tage","über 30 Tage"] }
+        ]
+      },
+      {
+        id: "errors_rework", label: "Fehlerquote / Nacharbeit / Rückläufer",
+        drilldowns: [
+          { id: "rework_type", when_lte: 3, type: "multi_select", label: "Welche Nacharbeiten treten auf?",
+            options: ["Rückfragen wegen fehlender Pflichtangaben","Falsche/uneinheitliche Stammdaten","Falsche Dokumentenversion","Dubletten (Person/Vorgang)","Abstimmungsfehler zwischen Ämtern","Fehlende Standards/Checklisten","Fehlerhafte Berechnungen / Bescheide","Nachträgliche Korrekturen an Bescheiden"] },
+          { id: "error_frequency", when_lte: 3, type: "select", label: "Wie oft treten Fehler auf?",
+            options: ["bei fast jedem Vorgang","bei ca. jedem 2. Vorgang","bei ca. jedem 5. Vorgang","selten","nur Einzelfälle"] }
+        ]
+      },
+      {
+        id: "it_infrastructure", label: "IT-Infrastruktur / Systeme",
+        drilldowns: [
+          { id: "it_problems", when_lte: 3, type: "multi_select", label: "Welche IT-Probleme treten auf?",
+            options: ["Systemabstürze / Ausfälle","Langsame Performance","Fehlende Schnittstellen zwischen Systemen","Veraltete Software / kein Update möglich","Fehlende mobile Nutzung / Homeoffice-Fähigkeit","Unzureichende Berechtigungen / Rechteverwaltung","Mangelnder IT-Support / lange Reaktionszeiten","Keine automatisierten Workflows"] },
+          { id: "it_problem_frequency", when_lte: 3, type: "select", label: "Wie oft treten diese IT-Probleme auf?",
+            options: ["täglich","wöchentlich","monatlich","selten"] }
+        ]
+      },
+      {
+        id: "knowledge_training", label: "Wissen / Schulung / Akzeptanz",
+        drilldowns: [
+          { id: "knowledge_deficits", when_lte: 3, type: "multi_select", label: "Welche Defizite bestehen?",
+            options: ["Fehlende Schulungen zu vorhandenen Systemen","Keine Dokumentation / Handbücher","Wissen nur bei einzelnen Personen (Kopfmonopol)","Widerstand gegen neue Systeme / Prozesse","Unklare Prozessbeschreibungen","Fehlende Vertretungsregelungen","Einarbeitung neuer Mitarbeitender dauert zu lange","Keine einheitlichen Arbeitsanweisungen"] },
+          { id: "knowledge_help", when_lte: 3, type: "multi_select", label: "Was würde am meisten helfen?",
+            options: ["Regelmäßige Schulungen","Video-Anleitungen / Tutorials","FAQ / Wiki / Wissensdatenbank","Persönliche Ansprechpartner / Key-User","Bessere Einarbeitung neuer Mitarbeitender","Standardisierte Prozessdokumentation","Austausch mit anderen Ämtern"] }
+        ]
+      }
+    ];
+
+    // Step 3: Priorisierung
+    const PRIO_QUESTIONS = [
+      {
+        id: "priority_cluster", type: "select",
+        label: "Welches Problem hat die höchste Dringlichkeit?",
+        options: [] // filled dynamically from CLUSTERS
+      },
+      {
+        id: "impact_level", type: "select",
+        label: "Wie stark beeinträchtigt das Problem den Arbeitsalltag?",
+        options: ["kaum spürbar","leicht störend","deutlich spürbar","stark belastend","Arbeit kaum möglich"]
+      },
+      {
+        id: "existing_workaround", type: "select",
+        label: "Gibt es bereits Lösungsansätze oder Workarounds?",
+        options: ["Nein, kein Workaround vorhanden","Ja, intern improvisiert","Ja, offizieller Workaround","Lösung ist bereits in Planung"]
+      }
+    ];
+
+    const STEPS = ["Kontext","Problemcluster","Priorisierung","Bemerkungen","Übersicht"];
+    let currentStep = 0;
+    let answers = {};
+    let comments = {};
+    let personData = {};
+
+    const $ = s => document.querySelector(s);
+    const wrap = document.getElementById('mainContent');
+
+    // ========== STARTSCREEN ==========
+    $('#btnStart').addEventListener('click', () => {
+      $('#startScreen').classList.add('hidden');
+      $('#personScreen').classList.remove('hidden');
+    });
+
+    // ========== PERSON INPUT ==========
+    $('#btnPersonNext').addEventListener('click', () => {
+      const name = $('#personName').value.trim();
+      if (!name) {
+        $('#personName').classList.add('error-field');
+        return;
+      }
+      $('#personName').classList.remove('error-field');
+
+      const digiRating = document.querySelector('input[name="digiRating"]:checked');
+      const digiWish = document.querySelector('input[name="digiWish"]:checked');
+
+      personData = {
+        name,
+        digiRating: digiRating ? digiRating.value : '—',
+        digiWish: digiWish ? digiWish.value : '—',
+        note: $('#personNote').value.trim()
+      };
+
+      localStorage.setItem('problemlandkarte_person', JSON.stringify(personData));
+
+      $('#personScreen').classList.add('hidden');
+      $('#fragebogenScreen').classList.remove('hidden');
+      renderCurrentStep();
+    });
+
+    // ========== STEP INDICATOR ==========
+    function renderStepIndicator() {
+      const el = $('#stepIndicator');
+      el.innerHTML = STEPS.map((s, i) => {
+        let cls = 'step-dot';
+        if (i < currentStep) cls += ' done';
+        if (i === currentStep) cls += ' active';
+        return `<span class="${cls}"></span>`;
+      }).join('') + `<span style="margin-left:6px">${STEPS[currentStep]} (${currentStep+1}/${STEPS.length})</span>`;
+    }
+
+    // ========== STEP 0: KONTEXT ==========
+    function renderStep0() {
+      let html = `<div class="card">
+        <h2>Schritt 1: Kontext erfassen</h2>
+        <p class="sub">Wählen Sie das betroffene Amt, die Prozessart, die Eingangskanäle und den Umfang des Problems.</p>`;
+      FUNNEL.forEach(f => {
+        html += `<div class="form-group"><label>${f.label}</label>`;
+        if (f.type === 'select') {
+          html += `<select id="${f.id}"><option value="">Bitte wählen...</option>${f.options.map(o=>`<option value="${o}" ${answers[f.id]===o?'selected':''}>${o}</option>`).join('')}</select>`;
+        } else if (f.type === 'multi_select') {
+          html += `<div class="checkbox-group">${f.options.map(o=>`<label><input type="checkbox" name="${f.id}" value="${o}" ${(answers[f.id]||[]).includes(o)?'checked':''}/><span>${o}</span></label>`).join('')}</div>`;
+        }
+        html += `<div class="comment-toggle" onclick="toggleComment('${f.id}')">+ Bemerkung hinzufügen</div>
+          <div class="comment-box ${comments[f.id]?'show':''}" id="comment_${f.id}">
+            <textarea id="comment_text_${f.id}" placeholder="Bemerkung...">${comments[f.id]||''}</textarea>
+          </div></div>`;
+      });
+      html += `<div class="btn-row"><button class="btn yellow" onclick="nextStep()">Weiter</button></div></div>`;
+      wrap.innerHTML = html;
+    }
+
+    // ========== STEP 1: CLUSTERS ==========
+    function renderStep1() {
+      let html = `<div class="card">
+        <h2>Schritt 2: Problemcluster bewerten</h2>
+        <p class="sub">Bewerten Sie jeden Bereich von 0 (starkes Problem) bis 5 (stabil). Bei 0–3 erscheinen Vertiefungsfragen.</p>`;
+      CLUSTERS.forEach(c => {
+        const val = answers[c.id];
+        html += `<div class="form-group" style="padding:16px;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;">
+          <label>${c.label}</label>
+          <div class="rating-group" id="rating_${c.id}">
+            ${[0,1,2,3,4,5].map(n=>`<button type="button" class="rating-btn ${val===n?'selected':''}" onclick="setRating('${c.id}',${n})">${n}</button>`).join('')}
+          </div>
+          <div class="rating-label"><span>0 = starkes Problem</span><span>5 = stabil</span></div>
+          <div class="comment-toggle" onclick="toggleComment('${c.id}')">+ Bemerkung</div>
+          <div class="comment-box ${comments[c.id]?'show':''}" id="comment_${c.id}">
+            <textarea id="comment_text_${c.id}" placeholder="Bemerkung...">${comments[c.id]||''}</textarea>
+          </div>`;
+        if (val !== undefined && val <= 3) {
+          c.drilldowns.forEach(d => {
+            html += `<div class="drilldown"><div class="form-group"><label style="font-size:13px;">${d.label}</label>`;
+            if (d.type === 'select') {
+              html += `<select id="${d.id}"><option value="">Bitte wählen...</option>${d.options.map(o=>`<option value="${o}" ${answers[d.id]===o?'selected':''}>${o}</option>`).join('')}</select>`;
+            } else if (d.type === 'multi_select') {
+              html += `<div class="checkbox-group">${d.options.map(o=>`<label><input type="checkbox" name="${d.id}" value="${o}" ${(answers[d.id]||[]).includes(o)?'checked':''}/><span>${o}</span></label>`).join('')}</div>`;
+            }
+            html += `<div class="comment-toggle" onclick="toggleComment('${d.id}')">+ Bemerkung</div>
+              <div class="comment-box ${comments[d.id]?'show':''}" id="comment_${d.id}">
+                <textarea id="comment_text_${d.id}" placeholder="Bemerkung...">${comments[d.id]||''}</textarea>
+              </div></div></div>`;
+          });
+        }
+        html += `</div>`;
+      });
+      html += `<div class="btn-row">
+        <button class="btn" onclick="prevStep()">Zurück</button>
+        <button class="btn yellow" onclick="nextStep()">Weiter</button>
+      </div></div>`;
+      wrap.innerHTML = html;
+    }
+
+    // ========== STEP 2: PRIORISIERUNG ==========
+    function renderStep2() {
+      let html = `<div class="card">
+        <h2>Schritt 3: Priorisierung & Auswirkung</h2>
+        <p class="sub">Bewerten Sie die Dringlichkeit und die Auswirkung des Problems auf Ihren Arbeitsalltag.</p>`;
+
+      // Priority cluster – dynamic options from CLUSTERS
+      html += `<div class="form-group"><label>${PRIO_QUESTIONS[0].label}</label>
+        <select id="priority_cluster"><option value="">Bitte wählen...</option>${CLUSTERS.map(c=>`<option value="${c.label}" ${answers.priority_cluster===c.label?'selected':''}>${c.label}</option>`).join('')}</select></div>`;
+
+      // Impact level
+      html += `<div class="form-group"><label>${PRIO_QUESTIONS[1].label}</label>
+        <select id="impact_level"><option value="">Bitte wählen...</option>${PRIO_QUESTIONS[1].options.map(o=>`<option value="${o}" ${answers.impact_level===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
+
+      // Existing workaround
+      html += `<div class="form-group"><label>${PRIO_QUESTIONS[2].label}</label>
+        <select id="existing_workaround"><option value="">Bitte wählen...</option>${PRIO_QUESTIONS[2].options.map(o=>`<option value="${o}" ${answers.existing_workaround===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
+
+      html += `<div class="btn-row">
+        <button class="btn" onclick="prevStep()">Zurück</button>
+        <button class="btn yellow" onclick="nextStep()">Weiter</button>
+      </div></div>`;
+      wrap.innerHTML = html;
+    }
+
+    // ========== STEP 3: GLOBAL NOTES ==========
+    function renderStep3() {
+      wrap.innerHTML = `<div class="card">
+        <h2>Schritt 4: Allgemeine Bemerkungen</h2>
+        <p class="sub">Notieren Sie hier weitere Bedenken, Sonderfälle oder Kontextinformationen.</p>
+        <div class="form-group">
+          <label>Weitere Bedenken / Sonderfälle / Kontext</label>
+          <div class="hint">z.B. rechtliche Vorgaben, politische Sensibilität, Datenschutzbedenken, Ressourcenengpässe...</div>
+          <textarea id="global_notes" style="min-height:140px;" placeholder="Ihre Bemerkungen...">${answers.global_notes||''}</textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="prevStep()">Zurück</button>
+          <button class="btn yellow" onclick="nextStep()">Weiter zur Übersicht</button>
+        </div>
+      </div>`;
+    }
+
+    // ========== STEP 4: SUMMARY ==========
+    function renderStep4() {
+      const result = evaluate();
+      const scoreColor = result.score >= 60 ? 'var(--success)' : result.score >= 35 ? 'var(--yellow)' : 'var(--accent)';
+
+      let html = `<div class="card">
+        <h2>Übersicht aller Eingaben</h2>
+        <p class="sub">Prüfen Sie Ihre Eingaben. Sie können Bereiche über das Panel rechts bearbeiten.</p>
+
+        <div style="display:flex;justify-content:center;gap:40px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div class="score-ring" style="--pct:${result.score};">
+              <div class="score-ring-inner">
+                <div class="num" style="color:${scoreColor};">${result.score}</div>
+                <div class="label">/ 100</div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:var(--muted);margin-top:6px;">Gesamtscore</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="score-ring" style="--pct:${Math.min(result.worstRisk,100)};background:conic-gradient(${result.worstRisk>=70?'var(--danger)':result.worstRisk>=40?'var(--warn)':'var(--success)'} ${Math.min(result.worstRisk,100)*3.6}deg, #eee 0);">
+              <div class="score-ring-inner">
+                <div class="num" style="color:${result.worstRisk>=70?'var(--danger)':result.worstRisk>=40?'var(--warn)':'var(--success)'};">${result.worstRisk}%</div>
+                <div class="label">Risiko</div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:var(--muted);margin-top:6px;">Risikobewertung: ${result.riskLabel}</div>
+          </div>
+        </div>`;
+
+      // Kontext
+      html += `<div class="summary-section"><h3>Kontext</h3>`;
+      FUNNEL.forEach(f => {
+        const val = Array.isArray(answers[f.id]) ? answers[f.id].join(', ') : (answers[f.id]||'—');
+        html += `<div class="summary-row"><span>${f.label}</span><b>${val}</b></div>`;
+        if (comments[f.id]) html += `<div class="summary-comment">Bemerkung: ${comments[f.id]}</div>`;
+      });
+      html += `</div>`;
+
+      // Clusters
+      html += `<div class="summary-section"><h3>Problemcluster</h3>`;
+      CLUSTERS.forEach(c => {
+        const val = answers[c.id] !== undefined ? `${answers[c.id]} / 5` : '—';
+        const risk = answers[c.id] !== undefined ? (5 - answers[c.id]) * 20 : 0;
+        html += `<div class="summary-row"><span>${c.label}</span><b>${val} (Risiko: ${risk}%)</b></div>`;
+        if (comments[c.id]) html += `<div class="summary-comment">Bemerkung: ${comments[c.id]}</div>`;
+        if (answers[c.id] !== undefined && answers[c.id] <= 3) {
+          c.drilldowns.forEach(d => {
+            const dval = Array.isArray(answers[d.id]) ? answers[d.id].join(', ') : (answers[d.id]||'—');
+            html += `<div class="summary-row" style="margin-left:16px;"><span>${d.label}</span><b>${dval}</b></div>`;
+          });
+        }
+      });
+      html += `</div>`;
+
+      // Priorisierung
+      html += `<div class="summary-section"><h3>Priorisierung & Auswirkung</h3>`;
+      html += `<div class="summary-row"><span>Höchste Dringlichkeit</span><b>${answers.priority_cluster||'—'}</b></div>`;
+      html += `<div class="summary-row"><span>Beeinträchtigung Arbeitsalltag</span><b>${answers.impact_level||'—'}</b></div>`;
+      html += `<div class="summary-row"><span>Lösungsansätze / Workarounds</span><b>${answers.existing_workaround||'—'}</b></div>`;
+      html += `</div>`;
+
+      // Score details
+      html += `<div class="summary-section"><h3>Scoring-Ergebnis</h3>
+        <div class="summary-row"><span>Kritischster Bereich</span><b>${result.worstLabel}</b></div>
+        <div class="summary-row"><span>Risikobewertung</span><b>${result.riskLabel}</b></div>
+      </div>`;
+
+      // Bullets
+      const bullets = generateBullets();
+      if (bullets.length) {
+        html += `<div class="summary-section"><h3>Problembeschreibung (Stichpunkte)</h3>
+          <ul style="padding:12px 12px 12px 28px;background:var(--panel);border-radius:var(--radius-sm);font-size:13px;line-height:1.8;list-style:disc;">
+            ${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}
+          </ul>
+        </div>`;
+      }
+
+      if (answers.global_notes) {
+        html += `<div class="summary-section"><h3>Allgemeine Bemerkungen</h3>
+          <div style="padding:12px;background:var(--panel);border-radius:var(--radius-sm);font-size:13px;white-space:pre-wrap;">${escapeHtml(answers.global_notes)}</div>
+        </div>`;
+      }
+
+      html += `<div class="btn-row">
+        <button class="btn" onclick="prevStep()">Zurück</button>
+        <button class="btn" onclick="openPanel()">Eingaben bearbeiten</button>
+        <button class="btn" onclick="openPopup()">Bemerkungen hinzufügen</button>
+        <button class="btn primary" onclick="submitToIT()">Auswertung starten</button>
+      </div></div>`;
+      wrap.innerHTML = html;
+    }
+
+    // ========== EVALUATION ==========
+    function evaluate() {
+      let total = 0, count = 0, worstRisk = 0, worstLabel = '—';
+      CLUSTERS.forEach(c => {
+        if (answers[c.id] !== undefined) {
+          total += answers[c.id]; count++;
+          let risk = (5 - answers[c.id]) * 20;
+          // Boosters from drilldowns
+          if (c.id==='media_break' && Array.isArray(answers.media_break_where) && answers.media_break_where.includes('Doppelte Datenerfassung in mehreren Systemen')) risk += 10;
+          if (c.id==='media_break' && answers.media_break_frequency === 'täglich') risk += 5;
+          if (c.id==='waiting_times' && Array.isArray(answers.waiting_reason) && answers.waiting_reason.includes('Abhängigkeit zu anderem Amt')) risk += 10;
+          if (c.id==='waiting_times' && (answers.waiting_duration === '11–30 Tage' || answers.waiting_duration === 'über 30 Tage')) risk += 5;
+          if (c.id==='errors_rework' && answers.error_frequency === 'bei fast jedem Vorgang') risk += 10;
+          if (c.id==='it_infrastructure' && Array.isArray(answers.it_problems) && answers.it_problems.includes('Fehlende Schnittstellen zwischen Systemen')) risk += 10;
+          if (c.id==='knowledge_training' && Array.isArray(answers.knowledge_deficits) && answers.knowledge_deficits.includes('Wissen nur bei einzelnen Personen (Kopfmonopol)')) risk += 10;
+          if (risk > worstRisk) { worstRisk = risk; worstLabel = c.label; }
+        }
+      });
+      const avg = count > 0 ? total / count : 0;
+      let score = Math.round(avg * 20);
+      // Impact booster
+      if (answers.impact_level === 'stark belastend') score = Math.max(0, score - 5);
+      if (answers.impact_level === 'Arbeit kaum möglich') score = Math.max(0, score - 10);
+      // Volume booster on risk
+      if (answers.volume_per_week === '51–100' || answers.volume_per_week === 'über 100') worstRisk = Math.min(100, worstRisk + 5);
+      // Channel complexity
+      if (Array.isArray(answers.case_channel) && answers.case_channel.length >= 4) worstRisk = Math.min(100, worstRisk + 5);
+
+      const riskLabel = worstRisk >= 70 ? 'Kritisch' : worstRisk >= 40 ? 'Mittel' : 'Niedrig';
+      return { score, worstRisk, worstLabel, riskLabel };
+    }
+
+    // ========== COLLECT / VALIDATE ==========
+    function collectCurrentStep() {
+      if (currentStep === 0) {
+        FUNNEL.forEach(f => {
+          if (f.type==='select') { const el=document.getElementById(f.id); if(el) answers[f.id]=el.value||undefined; }
+          else if (f.type==='multi_select') { answers[f.id]=Array.from(document.querySelectorAll(`input[name="${f.id}"]:checked`)).map(c=>c.value); }
+          const ct=document.getElementById('comment_text_'+f.id); if(ct&&ct.value.trim()) comments[f.id]=ct.value.trim();
+        });
+      } else if (currentStep === 1) {
+        CLUSTERS.forEach(c => {
+          const ct=document.getElementById('comment_text_'+c.id); if(ct&&ct.value.trim()) comments[c.id]=ct.value.trim();
+          c.drilldowns.forEach(d => {
+            if(d.type==='select'){const el=document.getElementById(d.id);if(el)answers[d.id]=el.value||undefined;}
+            else if(d.type==='multi_select'){answers[d.id]=Array.from(document.querySelectorAll(`input[name="${d.id}"]:checked`)).map(c=>c.value);}
+            const dct=document.getElementById('comment_text_'+d.id); if(dct&&dct.value.trim()) comments[d.id]=dct.value.trim();
+          });
+        });
+      } else if (currentStep === 2) {
+        const pc=document.getElementById('priority_cluster'); if(pc) answers.priority_cluster=pc.value||undefined;
+        const il=document.getElementById('impact_level'); if(il) answers.impact_level=il.value||undefined;
+        const ew=document.getElementById('existing_workaround'); if(ew) answers.existing_workaround=ew.value||undefined;
+      } else if (currentStep === 3) {
+        const gn=document.getElementById('global_notes'); if(gn) answers.global_notes=gn.value.trim();
+      }
+    }
+
+    function validateStep() {
+      if (currentStep===0) {
+        let valid=true;
+        FUNNEL.forEach(f=>{
+          if(f.type==='select'&&!answers[f.id]){const el=document.getElementById(f.id);if(el)el.classList.add('error-field');valid=false;}
+          else if(f.type==='multi_select'&&(!answers[f.id]||answers[f.id].length===0)){valid=false;}
+        });
+        return valid;
+      }
+      if (currentStep===1) { let valid=true; CLUSTERS.forEach(c=>{if(answers[c.id]===undefined)valid=false;}); return valid; }
+      if (currentStep===2) {
+        let valid=true;
+        ['priority_cluster','impact_level','existing_workaround'].forEach(id=>{
+          if(!answers[id]){const el=document.getElementById(id);if(el)el.classList.add('error-field');valid=false;}
+        });
+        return valid;
+      }
+      return true;
+    }
+
+    // ========== NAVIGATION ==========
+    function nextStep() {
+      collectCurrentStep();
+      if(!validateStep()){alert('Bitte füllen Sie alle Pflichtfelder aus.');return;}
+      if(currentStep<STEPS.length-1){currentStep++;renderCurrentStep();}
+    }
+    function prevStep() { collectCurrentStep(); if(currentStep>0){currentStep--;renderCurrentStep();} }
+
+    function renderCurrentStep() {
+      renderStepIndicator();
+      if(currentStep===0) renderStep0();
+      else if(currentStep===1) renderStep1();
+      else if(currentStep===2) renderStep2();
+      else if(currentStep===3) renderStep3();
+      else if(currentStep===4) renderStep4();
+      window.scrollTo(0,0);
+    }
+
+    window.setRating = function(id,val) { answers[id]=val; collectCurrentStep(); renderStep1(); };
+    window.toggleComment = function(id) { const box=document.getElementById('comment_'+id); if(box) box.classList.toggle('show'); };
+
+    // ========== POPUP ==========
+    function openPopup(){ $('#popupOverlay').classList.add('show'); $('#popupText').value=answers.global_notes||''; }
+    window.openPopup = openPopup;
+    $('#popupSave').addEventListener('click',()=>{ answers.global_notes=$('#popupText').value.trim(); $('#popupOverlay').classList.remove('show'); if(currentStep===4)renderStep4(); });
+    $('#popupCancel').addEventListener('click',()=>{ $('#popupOverlay').classList.remove('show'); });
+
+    // ========== PANEL ==========
+    function openPanel(){
+      const panel=$('#panelContent'); let html='';
+      html+='<h3 style="font-size:14px;color:var(--accent);margin:12px 0 8px;">Kontext</h3>';
+      FUNNEL.forEach(f=>{
+        const val=Array.isArray(answers[f.id])?answers[f.id].join(', '):(answers[f.id]||'—');
+        html+=`<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;">${f.label}</div><div style="font-size:13px;color:var(--muted);margin:4px 0;">${val}</div><textarea id="panel_comment_${f.id}" style="min-height:50px;font-size:12px;" placeholder="Bemerkung...">${comments[f.id]||''}</textarea></div>`;
+      });
+      html+='<h3 style="font-size:14px;color:var(--accent);margin:12px 0 8px;">Problemcluster</h3>';
+      CLUSTERS.forEach(c=>{
+        const val=answers[c.id]!==undefined?`${answers[c.id]} / 5`:'—';
+        html+=`<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;">${c.label}: ${val}</div><textarea id="panel_comment_${c.id}" style="min-height:50px;font-size:12px;" placeholder="Bemerkung...">${comments[c.id]||''}</textarea></div>`;
+      });
+      html+='<h3 style="font-size:14px;color:var(--accent);margin:12px 0 8px;">Priorisierung</h3>';
+      html+=`<div style="margin-bottom:8px;font-size:13px;"><b>Dringlichkeit:</b> ${answers.priority_cluster||'—'}</div>`;
+      html+=`<div style="margin-bottom:8px;font-size:13px;"><b>Auswirkung:</b> ${answers.impact_level||'—'}</div>`;
+      html+=`<div style="margin-bottom:8px;font-size:13px;"><b>Workaround:</b> ${answers.existing_workaround||'—'}</div>`;
+      panel.innerHTML=html; $('#panelOverlay').classList.add('show');
+    }
+    window.openPanel = openPanel;
+    $('#panelClose').addEventListener('click',()=>{ $('#panelOverlay').classList.remove('show'); });
+    $('#panelSaveAll').addEventListener('click',()=>{
+      FUNNEL.forEach(f=>{const el=document.getElementById('panel_comment_'+f.id);if(el&&el.value.trim())comments[f.id]=el.value.trim();});
+      CLUSTERS.forEach(c=>{const el=document.getElementById('panel_comment_'+c.id);if(el&&el.value.trim())comments[c.id]=el.value.trim();});
+      $('#panelOverlay').classList.remove('show'); if(currentStep===4)renderStep4();
+    });
+
+    // ========== SUBMIT ==========
+    function submitToIT(){
+      const result=evaluate();
+      const data={
+        id: crypto.randomUUID?crypto.randomUUID():Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        answers:{...answers}, comments:{...comments},
+        score:result.score, worstRisk:result.worstRisk, worstLabel:result.worstLabel, riskLabel:result.riskLabel,
+        dept:answers.dept||'—', process_type:answers.process_type||'—', isUserCase:true
+      };
+      data.bullets = generateBullets();
+      localStorage.setItem('problemlandkarte_current',JSON.stringify(data));
+      window.location.href='loading.html?target=it_dashboard.html';
+    }
+    window.submitToIT = submitToIT;
+
+    // ========== BULLET GENERATION ==========
+    function generateBullets() {
+      const b = [];
+      // Kontext
+      if (answers.dept) b.push(`Betroffenes Amt: ${answers.dept} – hier wurde ein konkretes Digitalisierungsproblem identifiziert.`);
+      if (answers.process_type) b.push(`Prozessart "${answers.process_type}" ist im Fokus der Analyse.`);
+      if (Array.isArray(answers.case_channel) && answers.case_channel.length)
+        b.push(`Eingangskanäle: ${answers.case_channel.join(', ')}${answers.case_channel.length>=3?' – Mehrkanal-Eingänge erhöhen die Komplexität.':'.'}`);
+      if (answers.volume_per_week) b.push(`Betroffenes Volumen: ca. ${answers.volume_per_week} Vorgänge pro Woche.`);
+      if (answers.affected_employees) b.push(`Betroffene Mitarbeitende: ${answers.affected_employees} Personen.`);
+
+      // Cluster: Medienbruch
+      if (answers.media_break !== undefined) {
+        if (answers.media_break <= 3) {
+          b.push(`Medienbrüche sind ${answers.media_break<=1?'ein schwerwiegendes':'ein deutliches'} Problem (Bewertung: ${answers.media_break}/5).`);
+          if (Array.isArray(answers.media_break_where) && answers.media_break_where.length)
+            b.push(`Konkrete Medienbruch-Stellen: ${answers.media_break_where.join(', ')}.`);
+          if (answers.media_break_frequency)
+            b.push(`Häufigkeit der Medienbrüche: ${answers.media_break_frequency}.`);
+          if (Array.isArray(answers.media_break_systems) && answers.media_break_systems.length)
+            b.push(`Betroffene Systeme: ${answers.media_break_systems.join(', ')}.`);
+        } else {
+          b.push(`Medienbrüche sind unter Kontrolle (Bewertung: ${answers.media_break}/5).`);
+        }
+      }
+
+      // Cluster: Wartezeiten
+      if (answers.waiting_times !== undefined) {
+        if (answers.waiting_times <= 3) {
+          b.push(`Wartezeiten sind ${answers.waiting_times<=1?'schwerwiegend':'deutlich spürbar'} (Bewertung: ${answers.waiting_times}/5).`);
+          if (Array.isArray(answers.waiting_reason) && answers.waiting_reason.length)
+            b.push(`Hauptursachen: ${answers.waiting_reason.join(', ')}.`);
+          if (answers.waiting_bottleneck_role)
+            b.push(`Engpass liegt bei: ${answers.waiting_bottleneck_role}.`);
+          if (answers.waiting_duration)
+            b.push(`Durchschnittliche Prozessdauer: ${answers.waiting_duration}.`);
+        } else {
+          b.push(`Wartezeiten sind akzeptabel (Bewertung: ${answers.waiting_times}/5).`);
+        }
+      }
+
+      // Cluster: Fehlerquote
+      if (answers.errors_rework !== undefined) {
+        if (answers.errors_rework <= 3) {
+          b.push(`Fehlerquote/Nacharbeit ist ${answers.errors_rework<=1?'sehr hoch':'erhöht'} (Bewertung: ${answers.errors_rework}/5).`);
+          if (Array.isArray(answers.rework_type) && answers.rework_type.length)
+            b.push(`Auftretende Nacharbeiten: ${answers.rework_type.join(', ')}.`);
+          if (answers.error_frequency)
+            b.push(`Fehlerhäufigkeit: ${answers.error_frequency}.`);
+        } else {
+          b.push(`Fehlerquote ist im Rahmen (Bewertung: ${answers.errors_rework}/5).`);
+        }
+      }
+
+      // Cluster: IT-Infrastruktur
+      if (answers.it_infrastructure !== undefined) {
+        if (answers.it_infrastructure <= 3) {
+          b.push(`IT-Infrastruktur ist ${answers.it_infrastructure<=1?'stark defizitär':'verbesserungsbedürftig'} (Bewertung: ${answers.it_infrastructure}/5).`);
+          if (Array.isArray(answers.it_problems) && answers.it_problems.length)
+            b.push(`IT-Probleme: ${answers.it_problems.join(', ')}.`);
+          if (answers.it_problem_frequency)
+            b.push(`Häufigkeit der IT-Probleme: ${answers.it_problem_frequency}.`);
+        } else {
+          b.push(`IT-Infrastruktur ist stabil (Bewertung: ${answers.it_infrastructure}/5).`);
+        }
+      }
+
+      // Cluster: Wissen/Schulung
+      if (answers.knowledge_training !== undefined) {
+        if (answers.knowledge_training <= 3) {
+          b.push(`Wissen/Schulung/Akzeptanz ist ${answers.knowledge_training<=1?'stark defizitär':'verbesserungsbedürftig'} (Bewertung: ${answers.knowledge_training}/5).`);
+          if (Array.isArray(answers.knowledge_deficits) && answers.knowledge_deficits.length)
+            b.push(`Defizite: ${answers.knowledge_deficits.join(', ')}.`);
+          if (Array.isArray(answers.knowledge_help) && answers.knowledge_help.length)
+            b.push(`Gewünschte Hilfe: ${answers.knowledge_help.join(', ')}.`);
+        } else {
+          b.push(`Wissen und Schulung sind ausreichend (Bewertung: ${answers.knowledge_training}/5).`);
+        }
+      }
+
+      // Priorisierung
+      if (answers.priority_cluster) b.push(`Höchste Dringlichkeit: ${answers.priority_cluster}.`);
+      if (answers.impact_level) b.push(`Beeinträchtigung des Arbeitsalltags: ${answers.impact_level}.`);
+      if (answers.existing_workaround) b.push(`Workaround-Status: ${answers.existing_workaround}.`);
+
+      return b;
+    }
+
+    function escapeHtml(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  </script>
+</body>
+</html>

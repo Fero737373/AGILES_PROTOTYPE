@@ -1,0 +1,14 @@
+{
+  "name": "agiles-prototype",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Baran, Adriana, Ferhat",
+  "license": "ISC",
+  "description": "Agiles Projekt und Prozessmanagement - Kreisverwaltung Herford",
+  "devDependencies": {
+    "electron": "^40.1.0"
+  }
+}

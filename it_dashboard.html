@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>IT-Dashboard – Kreisverwaltung Herford</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #f0faf0;
+      --panel2: #e2f5e2;
+      --text: #1a1a1a;
+      --muted: #666;
+      --line: #c0dcc0;
+      --accent: #16a34a;
+      --accent-dark: #0f7a36;
+      --accent-light: #22c55e;
+      --accent2: #2b6cb0;
+      --danger: #dc2626;
+      --warn: #d97706;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff; padding: 14px 24px;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    .topbar .logo-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; }
+    .topbar h1 { font-size: 16px; }
+    .topbar p { font-size: 12px; opacity: .85; }
+    .topbar .spacer { flex: 1; }
+    .topbar .btn-top {
+      padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.3);
+      background: rgba(255,255,255,.15); color: #fff; cursor: pointer; font-weight: 700; font-size: 13px;
+    }
+    .topbar .btn-top:hover { background: rgba(255,255,255,.25); }
+
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 80px; }
+
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px;
+    }
+    .card h2 { font-size: 16px; margin-bottom: 6px; color: var(--accent); }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; line-height: 1.5; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+    /* Score ring */
+    .score-ring {
+      width: 120px; height: 120px; border-radius: 50%;
+      background: conic-gradient(var(--accent) calc(var(--pct) * 3.6deg), #e5e5e5 0);
+      display: grid; place-items: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+    }
+    .score-ring-inner {
+      width: 84px; height: 84px; border-radius: 50%;
+      background: #fff; display: grid; place-items: center; text-align: center;
+    }
+    .score-ring-inner .num { font-size: 28px; font-weight: 900; }
+    .score-ring-inner .lbl { font-size: 10px; color: var(--muted); }
+
+    /* Table */
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    thead th {
+      text-align: left; font-size: 12px; color: var(--muted); font-weight: 800;
+      padding: 12px; border-bottom: 2px solid var(--line); background: var(--panel);
+      position: sticky; top: 0;
+    }
+    tbody td { padding: 12px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+    tbody tr { cursor: pointer; transition: background .15s; }
+    tbody tr:hover { background: rgba(22,163,74,.04); }
+    tbody tr.active-row { background: rgba(22,163,74,.08); }
+
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line);
+      font-size: 12px; font-weight: 600; background: var(--panel);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-high { background: var(--danger); }
+    .dot-mid { background: var(--warn); }
+    .dot-low { background: var(--accent); }
+
+    .score-big { font-size: 32px; font-weight: 900; color: var(--accent); }
+
+    /* Drawer */
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(580px, 92vw); background: #fff;
+      border-left: 2px solid var(--line);
+      box-shadow: -4px 0 24px rgba(0,0,0,.12);
+      z-index: 50; transform: translateX(100%);
+      transition: transform .3s ease; overflow-y: auto; padding: 24px;
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--line); background: #fff;
+      cursor: pointer; font-size: 18px; font-weight: 900;
+      display: grid; place-items: center;
+    }
+
+    .kv-row {
+      display: flex; justify-content: space-between; padding: 10px 14px;
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      margin-bottom: 6px; font-size: 13px; background: var(--panel);
+    }
+    .kv-row span { color: var(--muted); }
+    .kv-row b { color: var(--text); text-align: right; max-width: 60%; }
+
+    .bar-wrap { margin: 6px 0; }
+    .bar { height: 10px; border-radius: 999px; background: #e5e5e5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
+    .protocol-item {
+      padding: 10px 14px; border-left: 3px solid var(--accent2);
+      background: rgba(43,108,176,.04); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 8px; font-size: 12px;
+    }
+    .protocol-item .time { color: var(--muted); font-weight: 600; }
+    .protocol-item .action { margin-top: 2px; }
+
+    .related-card {
+      padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm);
+      margin-bottom: 8px; cursor: pointer; transition: background .15s;
+    }
+    .related-card:hover { background: var(--panel); }
+    .related-card .title { font-weight: 700; font-size: 13px; }
+    .related-card .desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .section-title {
+      font-size: 14px; font-weight: 800; color: var(--accent);
+      margin: 18px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line);
+    }
+    .divider { height: 1px; background: var(--line); margin: 16px 0; }
+    .hidden { display: none !important; }
+
+    .btn {
+      padding: 10px 20px; border-radius: var(--radius-sm);
+      border: 1px solid var(--line); background: #fff;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s;
+    }
+    .btn:hover { background: var(--panel); }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:hover { background: var(--accent-dark); }
+
+    /* Person popup */
+    .person-popup-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 100; display: none; place-items: center;
+    }
+    .person-popup-overlay.show { display: grid; }
+    .person-popup {
+      background: #fff; border-radius: var(--radius);
+      padding: 28px; max-width: 440px; width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .person-popup h2 { color: var(--accent); margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <img src="logo-kreis-herford.jpg" class="logo-img" alt="KH"/>
+    <div>
+      <h1>IT-Dashboard – Problemübersicht</h1>
+      <p>Kreisverwaltung Herford</p>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn-top" id="btnPerson">Erfasser-Info</button>
+    <button class="btn-top" id="btnEnd">Analyse abschließen</button>
+  </div>
+
+  <div class="wrap">
+    <!-- KPI Summary -->
+    <div class="grid3">
+      <div class="card" style="text-align:center;">
+        <h2>Ihr Score</h2>
+        <p class="sub">Ergebnis Ihrer Problemanalyse</p>
+        <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+          <div>
+            <div class="score-ring" id="userScoreRing" style="--pct:0;margin:0 auto 8px;">
+              <div class="score-ring-inner">
+                <div class="num" id="userScoreNum">—</div>
+                <div class="lbl">/ 100</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--muted);font-weight:700;">Score</div>
+          </div>
+          <div>
+            <div class="score-ring" id="userRiskRing" style="--pct:0;margin:0 auto 8px;">
+              <div class="score-ring-inner">
+                <div class="num" id="userRiskNum">—</div>
+                <div class="lbl">% Risiko</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--muted);font-weight:700;">Risiko</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;" id="userScoreLabel">—</div>
+      </div>
+      <div class="card">
+        <h2>Gesamtübersicht</h2>
+        <p class="sub">Alle Problemanalysen</p>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <div><div class="score-big" id="kpiTotal">0</div><div style="font-size:12px;color:var(--muted);">Gesamt</div></div>
+          <div><div class="score-big" id="kpiCrit" style="color:var(--danger);">0</div><div style="font-size:12px;color:var(--muted);">Kritisch</div></div>
+          <div><div class="score-big" id="kpiMid" style="color:var(--warn);">0</div><div style="font-size:12px;color:var(--muted);">Mittel</div></div>
+          <div><div class="score-big" id="kpiLow" style="color:var(--accent);">0</div><div style="font-size:12px;color:var(--muted);">Niedrig</div></div>
+        </div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h2>Durchschnitt</h2>
+        <p class="sub">Alle Fälle</p>
+        <div class="score-ring" id="avgScoreRing" style="--pct:0;margin:0 auto 8px;">
+          <div class="score-ring-inner">
+            <div class="num" id="avgScoreNum">—</div>
+            <div class="lbl">/ 100</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);" id="avgScoreLabel">Durchschnittsscore</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <h2>Alle Fälle</h2>
+      <p class="sub">Der erste Eintrag ist Ihre aktuelle Analyse. Klicken Sie auf einen Fall für Details, Scoring und Protokoll.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50px">#</th>
+              <th style="width:120px">Score</th>
+              <th>Amt / Abteilung</th>
+              <th>Prozessart</th>
+              <th>Kritischster Bereich</th>
+              <th style="width:100px">Risiko</th>
+              <th style="width:130px">Datum</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Drawer -->
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" id="drawerClose">&times;</button>
+    <div id="drawerContent"></div>
+  </div>
+
+  <!-- Person Info Popup -->
+  <div class="person-popup-overlay" id="personPopup">
+    <div class="person-popup">
+      <h2>Erfasser-Informationen</h2>
+      <div id="personInfo"></div>
+      <div style="margin-top:16px;">
+        <button class="btn primary" id="personPopupClose">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+
+    // ========== DATA ==========
+    const DEPTS = ["Bürgerbüro / Service","Bauamt","Jugendamt","Ordnungsamt","Sozialamt","Personal / Organisation","Kämmerei / Haushalt","IT / Digitalisierung"];
+    const PROCS = ["Antrag / Leistung","Genehmigung / Bescheid","Beschaffung / Vergabe","Personalvorgang","Haushalt / Rechnung","Aktenführung / Dokumentation","Interne Freigabe / Abstimmung"];
+    const CLUSTER_NAMES = ["Medienbruch / Copy-Paste / Papier","Wartezeiten / Liegezeiten / Freigaben","Fehlerquote / Nacharbeit / Rückläufer","IT-Infrastruktur / Systeme","Wissen / Schulung / Akzeptanz"];
+    const PROBLEMS = [
+      "Daten werden manuell zwischen drei Systemen übertragen",
+      "Freigabeprozess dauert im Schnitt 5 Werktage",
+      "Rückfragen wegen unvollständiger Anträge sind häufig",
+      "Excel wird als Zwischenlösung für fehlende Schnittstelle genutzt",
+      "Dokumente müssen ausgedruckt und wieder eingescannt werden",
+      "Vertretungsregelungen sind unklar, Vorgänge bleiben liegen",
+      "Dubletten in Stammdaten verursachen Fehlzuordnungen",
+      "Keine standardisierten Checklisten für wiederkehrende Prozesse",
+      "Genehmigungen stecken bei der Amtsleitung fest",
+      "Bürgeranfragen per Post verursachen hohen Erfassungsaufwand"
+    ];
+    const PROTOCOL_TEMPLATES = [
+      {action:"Problemanalyse eingereicht",by:"Sachbearbeitung"},
+      {action:"Erstbewertung durch IT-Koordination",by:"IT"},
+      {action:"Scoring-Analyse durchgeführt",by:"System"},
+      {action:"Kategorie und Zuordnung geprüft",by:"Digitalisierungsbüro"},
+      {action:"Drilldown-Fragen ausgewertet",by:"System"},
+      {action:"Risikobewertung aktualisiert",by:"IT"},
+      {action:"Maßnahmenvorschlag erstellt",by:"Digitalisierungsbüro"},
+      {action:"Priorisierung festgelegt",by:"IT-Leitung"}
+    ];
+
+    function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+    function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+    // ========== LOAD DATA ==========
+    let cases=[];
+    const userRaw=localStorage.getItem('problemlandkarte_current');
+    let userCase=userRaw?JSON.parse(userRaw):null;
+    const personRaw=localStorage.getItem('problemlandkarte_person');
+    const personData=personRaw?JSON.parse(personRaw):null;
+
+    function generateRandomCase(){
+      const score=randInt(15,85);
+      const risk=100-score;
+      return {
+        id:crypto.randomUUID?crypto.randomUUID():Date.now().toString()+Math.random(),
+        timestamp:new Date(Date.now()-randInt(60000,86400000*7)).toISOString(),
+        score, worstRisk:risk, worstLabel:pick(CLUSTER_NAMES),
+        riskLabel:risk>=60?'Kritisch':risk>=30?'Mittel':'Niedrig',
+        dept:pick(DEPTS), process_type:pick(PROCS),
+        isUserCase:false, problem:pick(PROBLEMS), answers:{}, comments:{}
+      };
+    }
+
+    function buildCases(){
+      cases=[];
+      if(userCase){userCase.problem=userCase.answers?.global_notes||'Problemanalyse aus Fragebogen';cases.push(userCase);}
+      for(let i=0;i<randInt(6,10);i++) cases.push(generateRandomCase());
+    }
+    buildCases();
+
+    // ========== SCORE COLOR ==========
+    function scoreColor(s){return s>=60?'var(--accent)':s>=35?'var(--warn)':'var(--danger)';}
+
+    // ========== RENDER KPIs ==========
+    function renderKPIs(){
+      const total=cases.length;
+      const crit=cases.filter(c=>c.worstRisk>=60).length;
+      const mid=cases.filter(c=>c.worstRisk>=30&&c.worstRisk<60).length;
+      const low=cases.filter(c=>c.worstRisk<30).length;
+      const avg=total>0?Math.round(cases.reduce((s,c)=>s+c.score,0)/total):0;
+
+      $('#kpiTotal').textContent=total;
+      $('#kpiCrit').textContent=crit;
+      $('#kpiMid').textContent=mid;
+      $('#kpiLow').textContent=low;
+
+      // User score ring
+      if(userCase){
+        $('#userScoreRing').style.setProperty('--pct',userCase.score);
+        $('#userScoreRing').style.background=`conic-gradient(${scoreColor(userCase.score)} ${userCase.score*3.6}deg, #e5e5e5 0)`;
+        $('#userScoreNum').textContent=userCase.score;
+        $('#userScoreNum').style.color=scoreColor(userCase.score);
+        $('#userScoreLabel').textContent=userCase.riskLabel;
+        // Risk ring
+        const rk=userCase.worstRisk;
+        const rkCol=rk>=60?'var(--danger)':rk>=30?'var(--warn)':'var(--accent)';
+        $('#userRiskRing').style.background=`conic-gradient(${rkCol} ${rk*3.6}deg, #e5e5e5 0)`;
+        $('#userRiskNum').textContent=rk;
+        $('#userRiskNum').style.color=rkCol;
+      }
+
+      // Avg score ring
+      $('#avgScoreRing').style.setProperty('--pct',avg);
+      $('#avgScoreRing').style.background=`conic-gradient(${scoreColor(avg)} ${avg*3.6}deg, #e5e5e5 0)`;
+      $('#avgScoreNum').textContent=avg;
+      $('#avgScoreNum').style.color=scoreColor(avg);
+    }
+
+    // ========== RENDER TABLE ==========
+    function renderTable(){
+      const tbody=$('#tableBody'); tbody.innerHTML='';
+      cases.forEach((c,i)=>{
+        const riskClass=c.worstRisk>=60?'dot-high':c.worstRisk>=30?'dot-mid':'dot-low';
+        const d=new Date(c.timestamp);
+        const tr=document.createElement('tr');
+        if(c.isUserCase) tr.style.fontWeight='700';
+        tr.innerHTML=`
+          <td>${c.isUserCase?'<span style="color:var(--accent);">&#9733;</span>':(i+1)}</td>
+          <td><span class="tag"><span class="dot ${riskClass}"></span>${c.score}/100</span></td>
+          <td>${c.dept}</td>
+          <td>${c.process_type}</td>
+          <td>${c.worstLabel}</td>
+          <td><span class="tag"><span class="dot ${riskClass}"></span>${c.riskLabel}</span></td>
+          <td style="font-size:12px;color:var(--muted);">${d.toLocaleDateString('de-DE')} ${d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</td>
+        `;
+        tr.addEventListener('click',()=>openDrawer(i));
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ========== DRAWER ==========
+    function generateProtocol(c){
+      const steps=[]; const base=new Date(c.timestamp); let offset=0;
+      for(let i=0;i<randInt(4,PROTOCOL_TEMPLATES.length);i++){
+        offset+=randInt(5,120);
+        steps.push({time:new Date(base.getTime()+offset*60000).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),action:PROTOCOL_TEMPLATES[i].action,by:PROTOCOL_TEMPLATES[i].by});
+      }
+      return steps;
+    }
+
+    function findRelated(c){
+      return cases.filter(x=>x.id!==c.id&&(x.worstLabel===c.worstLabel||x.dept===c.dept)).slice(0,3)
+        .map(x=>({title:`${x.dept} – ${x.process_type}`,desc:`Score: ${x.score}/100 | ${x.worstLabel} | ${x.riskLabel}`,problem:x.problem||'—'}));
+    }
+
+    function openDrawer(idx){
+      const c=cases[idx]; if(!c) return;
+      document.querySelectorAll('tbody tr').forEach((tr,i)=>tr.classList.toggle('active-row',i===idx));
+
+      const protocol=generateProtocol(c);
+      const related=findRelated(c);
+      const riskClass=c.worstRisk>=60?'dot-high':c.worstRisk>=30?'dot-mid':'dot-low';
+      const sc=scoreColor(c.score);
+
+      let html='';
+
+      // Header
+      html+=`<div style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          ${c.isUserCase?'<span style="background:var(--accent);color:#fff;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;">IHRE ANALYSE</span>':''}
+          <span class="tag"><span class="dot ${riskClass}"></span>${c.riskLabel}</span>
+        </div>
+        <h2 style="color:var(--accent);font-size:18px;">${c.dept}</h2>
+        <div style="color:var(--muted);font-size:13px;">${c.process_type}</div>
+      </div>`;
+
+      // Score + Risk rings in drawer
+      const rkCol=c.worstRisk>=60?'var(--danger)':c.worstRisk>=30?'var(--warn)':'var(--accent)';
+      html+=`<div class="section-title">Scoring-Analyse</div>
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div class="score-ring" style="--pct:${c.score};background:conic-gradient(${sc} ${c.score*3.6}deg, #e5e5e5 0);width:100px;height:100px;">
+            <div class="score-ring-inner" style="width:70px;height:70px;">
+              <div class="num" style="font-size:22px;color:${sc};">${c.score}</div>
+              <div class="lbl">/ 100</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;">Score</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="score-ring" style="--pct:${c.worstRisk};background:conic-gradient(${rkCol} ${c.worstRisk*3.6}deg, #e5e5e5 0);width:100px;height:100px;">
+            <div class="score-ring-inner" style="width:70px;height:70px;">
+              <div class="num" style="font-size:22px;color:${rkCol};">${c.worstRisk}</div>
+              <div class="lbl">% Risiko</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;">Risiko</div>
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <div class="kv-row"><span>Kritischster Bereich</span><b>${c.worstLabel}</b></div>
+          <div class="kv-row"><span>Risikowert</span><b>${c.worstRisk}%</b></div>
+          <div class="kv-row"><span>Risikostufe</span><b>${c.riskLabel}</b></div>
+        </div>
+      </div>`;
+
+      // User case cluster details
+      if(c.isUserCase&&c.answers){
+        html+=`<div class="kv-row"><span>Eingangskanäle</span><b>${Array.isArray(c.answers.case_channel)?c.answers.case_channel.join(', '):'—'}</b></div>`;
+        if(c.answers.volume_per_week) html+=`<div class="kv-row"><span>Vorgänge/Woche</span><b>${c.answers.volume_per_week}</b></div>`;
+        if(c.answers.affected_employees) html+=`<div class="kv-row"><span>Betroffene Mitarbeitende</span><b>${c.answers.affected_employees}</b></div>`;
+        const cm={media_break:'Medienbruch',waiting_times:'Wartezeiten',errors_rework:'Fehlerquote',it_infrastructure:'IT-Infrastruktur',knowledge_training:'Wissen/Schulung'};
+        Object.entries(cm).forEach(([k,l])=>{
+          if(c.answers[k]!==undefined){const r=(5-c.answers[k])*20;html+=`<div class="kv-row"><span>${l}</span><b>${c.answers[k]}/5 (Risiko: ${r}%)</b></div>`;}
+        });
+        if(c.answers.priority_cluster) html+=`<div class="kv-row"><span>Höchste Dringlichkeit</span><b>${c.answers.priority_cluster}</b></div>`;
+        if(c.answers.impact_level) html+=`<div class="kv-row"><span>Auswirkung</span><b>${c.answers.impact_level}</b></div>`;
+        if(c.answers.existing_workaround) html+=`<div class="kv-row"><span>Workaround</span><b>${c.answers.existing_workaround}</b></div>`;
+      }
+
+      // Problem
+      if(c.problem){
+        html+=`<div class="section-title">Problembeschreibung</div>
+        <div style="padding:12px;background:var(--panel);border-radius:var(--radius-sm);font-size:13px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(c.problem)}</div>`;
+      }
+
+      // Bullets (from questionnaire analysis)
+      if(c.bullets&&c.bullets.length>0){
+        html+=`<div class="section-title">Detailanalyse – Stichpunkte</div><ul style="padding:12px 12px 12px 28px;background:var(--panel);border-radius:var(--radius-sm);font-size:13px;line-height:1.8;">`;
+        c.bullets.forEach(b=>{html+=`<li>${escapeHtml(b)}</li>`;});
+        html+=`</ul>`;
+      }
+
+      // Comments
+      if(c.isUserCase&&c.comments&&Object.keys(c.comments).length>0){
+        html+=`<div class="section-title">Bemerkungen aus Fragebogen</div>`;
+        Object.entries(c.comments).forEach(([k,v])=>{
+          html+=`<div style="padding:8px 12px;background:var(--panel);border-radius:var(--radius-sm);margin-bottom:6px;font-size:12px;"><span style="color:var(--muted);font-weight:600;">${k}:</span> ${escapeHtml(v)}</div>`;
+        });
+      }
+
+      // Protocol
+      html+=`<div class="section-title">Bearbeitungsprotokoll</div>`;
+      protocol.forEach(p=>{html+=`<div class="protocol-item"><div class="time">${p.time} – ${p.by}</div><div class="action">${p.action}</div></div>`;});
+
+      // Related
+      html+=`<div class="section-title">Ähnliche / korrelierende Probleme</div>`;
+      if(!related.length) html+=`<div style="color:var(--muted);font-size:13px;padding:12px;">Keine ähnlichen Fälle gefunden.</div>`;
+      else related.forEach(r=>{html+=`<div class="related-card"><div class="title">${r.title}</div><div class="desc">${r.desc}</div><div style="font-size:12px;margin-top:4px;">${escapeHtml(r.problem)}</div></div>`;});
+
+      $('#drawerContent').innerHTML=html;
+      $('#drawer').classList.add('show');
+    }
+
+    $('#drawerClose').addEventListener('click',()=>{$('#drawer').classList.remove('show');document.querySelectorAll('tbody tr').forEach(tr=>tr.classList.remove('active-row'));});
+    window.addEventListener('keydown',e=>{if(e.key==='Escape')$('#drawerClose').click();});
+
+    // ========== PERSON POPUP ==========
+    $('#btnPerson').addEventListener('click',()=>{
+      let html='';
+      if(personData){
+        html+=`<div class="kv-row"><span>Name</span><b>${escapeHtml(personData.name)}</b></div>`;
+        html+=`<div class="kv-row"><span>Digitalisierungsbewertung</span><b>${personData.digiRating}</b></div>`;
+        html+=`<div class="kv-row"><span>Wichtigster Wunsch</span><b>${personData.digiWish}</b></div>`;
+        if(personData.note) html+=`<div style="margin-top:10px;padding:12px;background:var(--panel);border-radius:var(--radius-sm);font-size:13px;">${escapeHtml(personData.note)}</div>`;
+      } else {
+        html='<div style="color:var(--muted);font-size:13px;">Keine Personen-Daten vorhanden.</div>';
+      }
+      $('#personInfo').innerHTML=html;
+      $('#personPopup').classList.add('show');
+    });
+    $('#personPopupClose').addEventListener('click',()=>$('#personPopup').classList.remove('show'));
+
+    // ========== END ==========
+    $('#btnEnd').addEventListener('click',()=>{
+      window.location.href='loading.html?target=end_screen.html';
+    });
+
+    function escapeHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+    // ========== INIT ==========
+    renderKPIs();
+    renderTable();
+    if(userCase&&cases.length>0) setTimeout(()=>openDrawer(0),500);
+  </script>
+</body>
+</html>

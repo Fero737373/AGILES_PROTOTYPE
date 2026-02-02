@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Übersicht – Digitalisierungsbüro & IT (Mockup)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#101a2e;
+      --panel2:#0e1730;
+      --text:#e7ecff;
+      --muted:#aab3d6;
+      --line:#24304d;
+      --accent:#7c5cff;
+      --accent2:#2ee59d;
+      --warn:#ffcc66;
+      --danger:#ff5c7a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(124,92,255,.25), transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(46,229,157,.18), transparent 55%),
+                  linear-gradient(180deg, #070b14 0%, var(--bg) 60%, #060a12 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(11,18,32,.78), rgba(11,18,32,.25));
+      border-bottom: 1px solid rgba(36,48,77,.5);
+    }
+    .topbar-inner{
+      max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px;
+    }
+    .random-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.6);
+      color: var(--text);
+      cursor:pointer;
+      font-weight:800;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    }
+    .random-dot{
+      width:10px;height:10px;border-radius:50%;
+      background: conic-gradient(from 180deg, var(--accent), var(--accent2), var(--warn), var(--accent));
+      box-shadow: 0 0 0 3px rgba(124,92,255,.15);
+    }
+    .title{display:flex;flex-direction:column;line-height:1.1;gap:2px;}
+    .title h1{font-size:14px;margin:0;font-weight:900;letter-spacing:.2px}
+    .title p{margin:0;font-size:12px;color:var(--muted)}
+    .pill{
+      margin-left:auto;
+      font-size:12px;color:var(--muted);
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(36,48,77,.7);
+      background: rgba(16,26,46,.35);
+      display:flex;align-items:center;gap:8px;
+    }
+    .pill .dot{width:8px;height:8px;border-radius:50%}
+    .dot-low{background:var(--accent2)}
+    .dot-mid{background:var(--warn)}
+    .dot-high{background:var(--danger)}
+
+    .wrap{max-width:1200px;margin:0 auto;padding:18px 16px 56px;}
+    .grid{display:grid;gap:14px}
+    @media (min-width: 1020px){
+      .grid.cols-2{grid-template-columns: 1.3fr .7fr;}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(16,26,46,.92), rgba(14,23,48,.75));
+      border:1px solid rgba(36,48,77,.75);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+    }
+    .card h2{margin:0 0 8px 0;font-size:14px;letter-spacing:.2px}
+    .sub{margin:0 0 12px 0;color:var(--muted);font-size:12.5px;line-height:1.4}
+    .divider{height:1px;background:rgba(36,48,77,.7);margin:14px 0}
+
+    .controls{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+      padding:12px;border-radius: var(--radius-sm);
+      border:1px solid rgba(36,48,77,.65);
+      background: rgba(8,12,22,.22);
+    }
+    input[type="search"], select{
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.65);
+      color: var(--text);
+      outline:none;
+    }
+    input[type="search"]{flex: 1 1 220px; min-width: 220px;}
+    select{flex: 0 0 180px; min-width: 180px;}
+
+    .btn{
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.55);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .btn.primary{
+      background: linear-gradient(90deg, rgba(124,92,255,.85), rgba(46,229,157,.75));
+      border-color: rgba(124,92,255,.35);
+    }
+    .btn.ghost{background: transparent;}
+
+    /* Table-ish list */
+    .table{
+      overflow:auto;
+      border-radius: var(--radius);
+      border:1px solid rgba(36,48,77,.75);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width: 860px;
+      background: rgba(8,12,22,.18);
+    }
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color: var(--muted);
+      font-weight:900;
+      padding:12px 12px;
+      border-bottom:1px solid rgba(36,48,77,.75);
+      background: rgba(16,26,46,.55);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    tbody td{
+      padding:12px 12px;
+      border-bottom:1px solid rgba(36,48,77,.45);
+      vertical-align:top;
+      font-size:13px;
+    }
+    tbody tr:hover td{
+      background: rgba(124,92,255,.06);
+    }
+
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(36,48,77,.8);
+      background: rgba(8,12,22,.18);
+      font-size:12px;
+      color: var(--muted);
+      width:max-content;
+    }
+    .sev-dot{width:9px;height:9px;border-radius:50%}
+    .sev-low{background:var(--accent2)}
+    .sev-mid{background:var(--warn)}
+    .sev-high{background:var(--danger)}
+
+    .score{
+      font-weight:950;
+      font-size:14px;
+    }
+    .muted{color:var(--muted)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    /* Drawer (Detail) */
+    .drawer{
+      position: fixed;
+      right: 18px;
+      top: 74px;
+      bottom: 18px;
+      width: min(520px, calc(100vw - 36px));
+      background: linear-gradient(180deg, rgba(16,26,46,.96), rgba(14,23,48,.86));
+      border:1px solid rgba(36,48,77,.85);
+      border-radius: 22px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.5);
+      padding:16px;
+      display:none;
+      z-index: 20;
+      overflow:auto;
+    }
+    .drawer.show{display:block}
+    .drawer-head{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+      margin-bottom:10px;
+    }
+    .drawer h3{margin:0;font-size:14px;font-weight:950}
+    .drawer .x{
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(8,12,22,.22);
+      color: var(--text);
+      width:36px;height:36px;border-radius:12px;
+      cursor:pointer;font-weight:900;
+    }
+    .kv{
+      display:grid;gap:10px;margin-top:12px;
+    }
+    .kv .row{
+      display:flex;justify-content:space-between;gap:12px;
+      padding:10px 12px;border-radius:12px;
+      border:1px solid rgba(36,48,77,.65);
+      background: rgba(8,12,22,.16);
+      font-size:13px;
+    }
+    .kv .row span{color:var(--muted);font-weight:800}
+    .kv .row b{font-weight:950}
+
+    textarea{
+      width:100%;
+      min-height: 110px;
+      padding:12px;
+      border-radius: 14px;
+      border:1px solid rgba(36,48,77,.9);
+      background: rgba(16,26,46,.55);
+      color:var(--text);
+      outline:none;
+      resize:vertical;
+    }
+    .small{font-size:12px;color:var(--muted);line-height:1.4;margin-top:8px}
+
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(36,48,77,.8);
+      background: rgba(8,12,22,.16);
+      font-size:12px;color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip.active{
+      background: rgba(124,92,255,.16);
+      border-color: rgba(124,92,255,.55);
+      color: var(--text);
+    }
+
+    .kpi{
+      display:grid;gap:10px;
+    }
+    .bar{
+      height:10px;border-radius:999px;background: rgba(36,48,77,.65);
+      overflow:hidden;border:1px solid rgba(36,48,77,.7);
+    }
+    .bar > i{
+      display:block;height:100%;width:0%;
+      background: linear-gradient(90deg, rgba(124,92,255,.85), rgba(46,229,157,.75));
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button id="randomBtn" class="random-btn" type="button" title="Beispiel-Fälle generieren">
+        <span class="random-dot"></span>
+        RANDOM
+      </button>
+
+      <div class="title">
+        <h1>Übersicht: Sacharbeiter-Probleme für Digitalisierungsbüro & IT</h1>
+        <p>Mockup: Scores, konkrete Probleme, Priorisierung, Detailansicht für ITler</p>
+      </div>
+
+      <div id="statusPill" class="pill">
+        <span class="dot dot-mid"></span>
+        <span id="statusText">Live-Ansicht (Mockup)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="grid cols-2">
+      <!-- Left: List -->
+      <section class="card">
+        <h2>Problem-Inbox (Sachbearbeitung → IT/DigiBüro)</h2>
+        <p class="sub">
+          Jede Zeile ist ein gemeldeter Pain Point inkl. Score (0–100), Prozessbezug, Impact und „konkretem Problem“.
+          Klicke eine Zeile, um Details, Hypothesen und nächste Schritte zu sehen.
+        </p>
+
+        <div class="controls">
+          <input id="search" type="search" placeholder="Suchen: Prozess, Amt, Problemtext, Ticket-ID…" />
+          <select id="filterSev">
+            <option value="all">Alle Prioritäten</option>
+            <option value="high">Kritisch (≥70)</option>
+            <option value="mid">Mittel (40–69)</option>
+            <option value="low">Niedrig (&lt;40)</option>
+          </select>
+          <select id="filterOwner">
+            <option value="all">Alle Zuständigkeiten</option>
+            <option value="IT">IT</option>
+            <option value="Digi">Digitalisierungsbüro</option>
+            <option value="Both">IT + Digi</option>
+          </select>
+          <button id="newRandom" class="btn primary" type="button">Beispiel-Fälle</button>
+          <button id="clearAll" class="btn" type="button">Leeren</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="table">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px">Ticket</th>
+                <th style="width:120px">Score</th>
+                <th style="width:170px">Prozess</th>
+                <th style="width:160px">Amt/Team</th>
+                <th style="width:160px">Zuständig</th>
+                <th>Konkretes Problem</th>
+                <th style="width:140px">Status</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+
+        <p class="sub" style="margin-top:12px;">
+          Score-Logik (Mockup): <b>höher = kritischer</b> (Impact + Häufigkeit + Risiko). <span class="muted">Alles Demo-Daten.</span>
+        </p>
+      </section>
+
+      <!-- Right: KPI summary -->
+      <aside class="card">
+        <h2>Leitstand (Kurzüberblick)</h2>
+        <p class="sub">Was die IT schnell wissen muss: Wie viel ist kritisch? Wo brennt es? Welche Themen sind systemisch?</p>
+
+        <div class="kpi">
+          <div class="kv-row">
+            <div class="tag"><span class="sev-dot sev-high"></span> Kritisch</div>
+            <div class="bar"><i id="barHigh"></i></div>
+            <div class="small" id="txtHigh">—</div>
+          </div>
+
+          <div class="kv-row">
+            <div class="tag"><span class="sev-dot sev-mid"></span> Mittel</div>
+            <div class="bar"><i id="barMid"></i></div>
+            <div class="small" id="txtMid">—</div>
+          </div>
+
+          <div class="kv-row">
+            <div class="tag"><span class="sev-dot sev-low"></span> Niedrig</div>
+            <div class="bar"><i id="barLow"></i></div>
+            <div class="small" id="txtLow">—</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Top-Prozesscluster</h2>
+        <p class="sub">Welche Prozessarten am häufigsten auftreten (Mockup-Cluster).</p>
+        <div id="clusters" class="chips"></div>
+
+        <div class="divider"></div>
+
+        <h2>Schnellaktion</h2>
+        <p class="sub">Beispiel-Fälle generieren, um die Oberfläche zu testen.</p>
+        <button class="btn primary" id="kpiRandom" type="button" style="width:100%;">RANDOM: 8 neue Fälle</button>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Detail Drawer -->
+  <div id="drawer" class="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <h3 id="dTitle">Ticket —</h3>
+        <div class="sub" id="dSub" style="margin:6px 0 0 0;">—</div>
+      </div>
+      <button class="x" id="closeDrawer" type="button">✕</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="kv">
+      <div class="row"><span>Score</span><b id="dScore">—</b></div>
+      <div class="row"><span>Prozess</span><b id="dProcess">—</b></div>
+      <div class="row"><span>Amt/Team</span><b id="dDept">—</b></div>
+      <div class="row"><span>Zuständig</span><b id="dOwner">—</b></div>
+      <div class="row"><span>Status</span><b id="dStatus">—</b></div>
+      <div class="row"><span>Letztes Update</span><b id="dUpdated">—</b></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2 style="margin:0 0 8px 0;font-size:14px;">Konkretes Problem (Originalmeldung)</h2>
+    <div class="card" style="padding:12px;border-radius:14px;background:rgba(8,12,22,.18);box-shadow:none">
+      <div id="dProblem" style="line-height:1.5;white-space:pre-wrap"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2 style="margin:0 0 8px 0;font-size:14px;">Technische Sicht (Mockup)</h2>
+    <div class="kv">
+      <div class="row"><span>Vermutete Ursache</span><b id="dCause">—</b></div>
+      <div class="row"><span>Betroffene Systeme</span><b id="dSystems">—</b></div>
+      <div class="row"><span>Empfohlene nächste Schritte</span><b id="dNext">—</b></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2 style="margin:0 0 8px 0;font-size:14px;">Kommentar / Rückfrage an Sachbearbeitung</h2>
+    <textarea id="dComment" placeholder="Rückfragen, Anforderungen, Debug-Fragen, benötigte Logs/Screenshots…"></textarea>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <button id="saveComment" class="btn primary" type="button">Kommentar speichern</button>
+      <button id="copyAsTask" class="btn" type="button">Als Task kopieren</button>
+    </div>
+    <p class="small">Mockup: Kommentar wird lokal gespeichert (Browser). „Als Task kopieren“ legt einen Text in die Zwischenablage.</p>
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+
+    // --- Mock "Prozesscluster" / Beispielprobleme ---
+    const PROCESS = [
+      {
+        name: "Medienbruch",
+        examples: [
+          "Vorgang startet digital, aber am Ende müssen wir alles ausdrucken und abheften.",
+          "Daten aus E-Mail werden in 2 Systeme manuell übertragen (Copy/Paste).",
+          "Unterschriften nur auf Papier möglich → Scan + manuelles Nachpflegen."
+        ],
+        systems: ["DMS", "E-Mail", "Fachverfahren"],
+        causes: ["Keine Schnittstelle", "Unklare Dokumentenstandards", "Papierpflicht im Teilprozess"],
+        next: ["Zielprozess definieren", "Digitale Signatur prüfen", "Schnittstellen-Check (Export/API)"]
+      },
+      {
+        name: "Wartezeit",
+        examples: [
+          "Freigabe liegt oft 2–3 Tage, weil Vertretungen nicht klar sind.",
+          "Status ist unklar: Wir wissen nicht, wer dran ist.",
+          "Rückfragen-Schleifen ohne Fristen → Vorgänge hängen fest."
+        ],
+        systems: ["Workflow-Tool", "Outlook", "Ticketing"],
+        causes: ["Keine SLA/Fristen", "Keine Vertretungsregeln", "Status nicht transparent"],
+        next: ["SLA + Eskalation", "Vertretungsregeln/Rollen", "Status/Queue sichtbar machen"]
+      },
+      {
+        name: "Nacharbeit",
+        examples: [
+          "Fehlerhafte Eingaben, weil Pflichtfelder fehlen oder missverständlich sind.",
+          "Wir korrigieren Adressen/Daten immer wieder (Dubletten).",
+          "Formulare kommen unvollständig zurück → doppelte Arbeit."
+        ],
+        systems: ["Online-Formular", "Datenbank", "DMS"],
+        causes: ["Keine Validierung", "Uneinheitliche Felder", "Keine Plausibilitätsprüfungen"],
+        next: ["Validierungen/Pflichtfelder", "Datenmodell harmonisieren", "Klarere Feldbeschreibungen"]
+      },
+      {
+        name: "Datenqualität",
+        examples: [
+          "Stammdaten sind nicht aktuell, deshalb falsche Zuordnung von Fällen.",
+          "Dubletten: gleiche Person mehrfach mit leicht anderer Schreibweise.",
+          "Schlüssel/IDs nicht konsistent zwischen Systemen."
+        ],
+        systems: ["Stammdaten", "Fachverfahren", "DWH/Reports"],
+        causes: ["Keine Governance", "Fehlende Dublettenregeln", "Kein Master-System"],
+        next: ["Data Owner benennen", "Regeln/Checks definieren", "Master-Data-Strategie"]
+      },
+      {
+        name: "Standardisierung",
+        examples: [
+          "Jeder macht den Prozess anders – es gibt keinen Standardablauf.",
+          "Zuständigkeiten sind nicht eindeutig (wer entscheidet was?).",
+          "Uneinheitliche Vorlagen/Checklisten."
+        ],
+        systems: ["Wiki/Knowledge", "Vorlagen", "Workflow"],
+        causes: ["Keine RACI", "Keine DOR/DOD", "Vorlagen nicht gepflegt"],
+        next: ["RACI erstellen", "DOR/DOD definieren", "Vorlagen zentralisieren"]
+      },
+      {
+        name: "Schnittstellen",
+        examples: [
+          "Wir können Daten nicht exportieren und müssen Screenshots machen.",
+          "Keine API/Export → monatliche Auswertung dauert Stunden.",
+          "Daten müssen in Excel zwischengeschoben werden."
+        ],
+        systems: ["Fachverfahren", "Excel", "BI"],
+        causes: ["Kein Export", "Keine API", "Integrations-Backlog"],
+        next: ["Export/CSV prüfen", "API-Optionen", "Integrations-Roadmap + Quick Wins"]
+      }
+    ];
+
+    const DEPTS = ["Bürgerbüro", "Sozialamt", "Ordnungsamt", "Standesamt", "Bauamt", "Finanzverwaltung", "Schulamt"];
+    const STATUS = ["Neu", "In Prüfung", "Rückfrage offen", "Geplant", "In Umsetzung"];
+    const OWNER = ["IT", "Digi", "Both"];
+
+    // Storage keys (Mock)
+    const STORE_KEY = "it_inbox_mock_v1";
+    const COMMENT_KEY = "it_inbox_comments_v1";
+
+    let state = {
+      items: [],
+      selectedId: null,
+      clusterFilter: "all"
+    };
+
+    // --- Helpers ---
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+    function randInt(min, max){ return Math.floor(Math.random() * (max-min+1)) + min; }
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    // Score: höher = kritischer (Mock)
+    function makeScore(){
+      // realistisch: viel Mitte, paar hohe Ausreißer
+      const r = Math.random();
+      if (r < 0.15) return randInt(75, 98);
+      if (r < 0.55) return randInt(45, 74);
+      return randInt(10, 44);
+    }
+    function sev(score){
+      if (score >= 70) return { key:"high", label:"Kritisch", dot:"sev-high" };
+      if (score >= 40) return { key:"mid", label:"Mittel", dot:"sev-mid" };
+      return { key:"low", label:"Niedrig", dot:"sev-low" };
+    }
+    function ownerLabel(o){
+      return o === "Both" ? "IT + Digi" : (o === "IT" ? "IT" : "Digitalisierungsbüro");
+    }
+    function ticketId(){
+      const a = "DK"; // Digitalisierungskarte
+      const n = randInt(1000, 9999);
+      return `${a}-${n}`;
+    }
+
+    function load(){
+      const raw = localStorage.getItem(STORE_KEY);
+      state.items = raw ? JSON.parse(raw) : [];
+    }
+    function save(){
+      localStorage.setItem(STORE_KEY, JSON.stringify(state.items));
+    }
+
+    function loadComments(){
+      const raw = localStorage.getItem(COMMENT_KEY);
+      return raw ? JSON.parse(raw) : {};
+    }
+    function saveComments(map){
+      localStorage.setItem(COMMENT_KEY, JSON.stringify(map));
+    }
+
+    // --- Generate random cases ---
+    function generateCases(count=8){
+      const now = new Date();
+      const newItems = [];
+      for (let i=0; i<count; i++){
+        const p = pick(PROCESS);
+        const score = makeScore();
+        const dept = pick(DEPTS);
+        const owner = pick(OWNER);
+        const status = pick(STATUS);
+
+        const problem = pick(p.examples);
+        const impact = score >= 70
+          ? "Hoher Impact (Bürger/Fristen/Fehlerquote)"
+          : score >= 40
+            ? "Mittlerer Impact (Zeitverlust / Nacharbeit)"
+            : "Niedriger Impact (lokal / selten)";
+
+        newItems.push({
+          id: crypto?.randomUUID?.() || (Date.now()+"-"+Math.random()),
+          ticket: ticketId(),
+          score,
+          process: p.name,
+          dept,
+          owner,
+          status,
+          impact,
+          problem,
+          systems: p.systems.join(", "),
+          cause: pick(p.causes),
+          next: pick(p.next),
+          updatedAt: new Date(now.getTime() - randInt(1, 240)*60*1000).toISOString()
+        });
+      }
+      // Neue Fälle oben rein
+      state.items = [...newItems, ...state.items].slice(0, 60);
+      save();
+      render();
+    }
+
+    // --- Rendering ---
+    function render(){
+      renderTable();
+      renderKPIs();
+      renderClusters();
+    }
+
+    function renderTable(){
+      const tbody = $("#rows");
+      tbody.innerHTML = "";
+
+      const q = $("#search").value.trim().toLowerCase();
+      const sevFilter = $("#filterSev").value;
+      const ownerFilter = $("#filterOwner").value;
+
+      const filtered = state.items.filter(it => {
+        const s = sev(it.score).key;
+        if (sevFilter !== "all" && s !== sevFilter) return false;
+        if (ownerFilter !== "all" && it.owner !== ownerFilter) return false;
+        if (state.clusterFilter !== "all" && it.process !== state.clusterFilter) return false;
+
+        if (!q) return true;
+        const hay = [
+          it.ticket, it.process, it.dept, ownerLabel(it.owner),
+          it.problem, it.status, it.impact
+        ].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+
+      filtered.forEach(it => {
+        const s = sev(it.score);
+        const tr = document.createElement("tr");
+        tr.style.cursor = "pointer";
+        tr.addEventListener("click", () => openDrawer(it.id));
+        tr.innerHTML = `
+          <td class="mono"><b>${it.ticket}</b></td>
+          <td>
+            <div class="tag"><span class="sev-dot ${s.dot}"></span><span class="score">${it.score}/100</span></div>
+            <div class="muted" style="font-size:12px;margin-top:6px">${s.label}</div>
+          </td>
+          <td><b>${it.process}</b><div class="muted" style="font-size:12px;margin-top:6px">${it.impact}</div></td>
+          <td><b>${it.dept}</b></td>
+          <td><div class="tag"><span class="sev-dot ${it.owner==="IT" ? "sev-mid" : it.owner==="Digi" ? "sev-low":"sev-high"}"></span>${ownerLabel(it.owner)}</div></td>
+          <td>${escapeHtml(it.problem)}</td>
+          <td><div class="tag">${it.status}</div><div class="muted" style="font-size:12px;margin-top:6px">${timeAgo(it.updatedAt)}</div></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (!filtered.length){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="7" class="muted" style="padding:18px">Keine Treffer. (RANDOM drücken, um Beispiel-Fälle zu erzeugen.)</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function renderKPIs(){
+      const total = state.items.length || 1;
+      const high = state.items.filter(i=>i.score>=70).length;
+      const mid  = state.items.filter(i=>i.score>=40 && i.score<70).length;
+      const low  = state.items.filter(i=>i.score<40).length;
+
+      const pHigh = Math.round(high/total*100);
+      const pMid  = Math.round(mid/total*100);
+      const pLow  = Math.round(low/total*100);
+
+      $("#barHigh").style.width = `${pHigh}%`;
+      $("#barMid").style.width  = `${pMid}%`;
+      $("#barLow").style.width  = `${pLow}%`;
+
+      $("#txtHigh").textContent = `${high} Fälle (${pHigh}%)`;
+      $("#txtMid").textContent  = `${mid} Fälle (${pMid}%)`;
+      $("#txtLow").textContent  = `${low} Fälle (${pLow}%)`;
+
+      // Status pill
+      const dot = $("#statusPill .dot");
+      if (high >= 6) { dot.className = "dot dot-high"; $("#statusText").textContent = "Hohe Last (Mockup)"; }
+      else if (high >= 2) { dot.className = "dot dot-mid"; $("#statusText").textContent = "Mittlere Last (Mockup)"; }
+      else { dot.className = "dot dot-low"; $("#statusText").textContent = "Ruhig (Mockup)"; }
+    }
+
+    function renderClusters(){
+      const el = $("#clusters");
+      el.innerHTML = "";
+
+      const counts = {};
+      state.items.forEach(i => counts[i.process] = (counts[i.process]||0)+1);
+
+      const chips = [
+        { name: "all", label: "Alle" },
+        ...PROCESS.map(p => ({ name: p.name, label: `${p.name} (${counts[p.name]||0})` }))
+      ];
+
+      chips.forEach(c => {
+        const chip = document.createElement("div");
+        chip.className = "chip" + (state.clusterFilter === c.name ? " active" : "");
+        chip.textContent = c.label;
+        chip.addEventListener("click", () => {
+          state.clusterFilter = c.name;
+          render();
+        });
+        el.appendChild(chip);
+      });
+    }
+
+    // --- Drawer ---
+    function openDrawer(id){
+      state.selectedId = id;
+      const it = state.items.find(x => x.id === id);
+      if (!it) return;
+
+      const s = sev(it.score);
+      $("#dTitle").textContent = `${it.ticket} · ${it.process} · ${it.dept}`;
+      $("#dSub").innerHTML = `<span class="tag"><span class="sev-dot ${s.dot}"></span>${it.score}/100 · ${s.label}</span>`;
+
+      $("#dScore").textContent = `${it.score}/100`;
+      $("#dProcess").textContent = it.process;
+      $("#dDept").textContent = it.dept;
+      $("#dOwner").textContent = ownerLabel(it.owner);
+      $("#dStatus").textContent = it.status;
+      $("#dUpdated").textContent = new Date(it.updatedAt).toLocaleString("de-DE");
+
+      $("#dProblem").textContent = it.problem;
+      $("#dCause").textContent = it.cause;
+      $("#dSystems").textContent = it.systems;
+      $("#dNext").textContent = it.next;
+
+      const comments = loadComments();
+      $("#dComment").value = comments[id] || "";
+
+      $("#drawer").classList.add("show");
+      $("#drawer").setAttribute("aria-hidden", "false");
+    }
+
+    function closeDrawer(){
+      $("#drawer").classList.remove("show");
+      $("#drawer").setAttribute("aria-hidden", "true");
+      state.selectedId = null;
+    }
+
+    // --- Actions ---
+    function clearAll(){
+      state.items = [];
+      save();
+      render();
+      closeDrawer();
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function timeAgo(iso){
+      const d = new Date(iso);
+      const diff = Date.now() - d.getTime();
+      const m = Math.floor(diff/60000);
+      if (m < 1) return "gerade eben";
+      if (m < 60) return `vor ${m} Min`;
+      const h = Math.floor(m/60);
+      if (h < 24) return `vor ${h} Std`;
+      const days = Math.floor(h/24);
+      return `vor ${days} Tg`;
+    }
+
+    // --- Events ---
+    $("#randomBtn").addEventListener("click", () => generateCases(6));
+    $("#newRandom").addEventListener("click", () => generateCases(8));
+    $("#kpiRandom").addEventListener("click", () => generateCases(8));
+    $("#clearAll").addEventListener("click", clearAll);
+
+    $("#search").addEventListener("input", renderTable);
+    $("#filterSev").addEventListener("change", renderTable);
+    $("#filterOwner").addEventListener("change", renderTable);
+
+    $("#closeDrawer").addEventListener("click", closeDrawer);
+    window.addEventListener("keydown", (e)=>{ if (e.key === "Escape") closeDrawer(); });
+
+    $("#saveComment").addEventListener("click", () => {
+      if (!state.selectedId) return;
+      const map = loadComments();
+      map[state.selectedId] = $("#dComment").value;
+      saveComments(map);
+
+      // kleiner UI-Hinweis: UpdatedAt aktualisieren (Mock)
+      const it = state.items.find(x => x.id === state.selectedId);
+      if (it){
+        it.updatedAt = new Date().toISOString();
+        save();
+        renderTable();
+        $("#dUpdated").textContent = new Date(it.updatedAt).toLocaleString("de-DE");
+      }
+    });
+
+    $("#copyAsTask").addEventListener("click", async () => {
+      if (!state.selectedId) return;
+      const it = state.items.find(x => x.id === state.selectedId);
+      if (!it) return;
+
+      const txt =
+`TASK: ${it.ticket} – ${it.process} (${it.score}/100)
+Amt/Team: ${it.dept}
+Zuständig: ${ownerLabel(it.owner)}
+Status: ${it.status}
+
+Problem:
+${it.problem}
+
+Vermutete Ursache:
+${it.cause}
+
+Betroffene Systeme:
+${it.systems}
+
+Nächste Schritte:
+${it.next}
+
+Kommentar / Rückfrage:
+${$("#dComment").value || "—"}`;
+
+      try{
+        await navigator.clipboard.writeText(txt);
+        alert("Task in Zwischenablage kopiert.");
+      }catch{
+        alert("Kopieren nicht möglich (Browser-Berechtigung). Text manuell markieren.");
+      }
+    });
+
+    // Init
+    load();
+    render();
+
+    // Wenn leer: direkt ein paar Demo-Fälle
+    if (state.items.length === 0) generateCases(8);
+  </script>
+</body>
+</html>
